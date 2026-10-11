@@ -175,7 +175,7 @@ function showEditor(entry=null){if(!isAdmin)return;editingId=entry?.id??null;$('
 $('cmSendTestEmail').addEventListener('click',async()=>{
  if(!isAdmin||!currentUser)return;
  const btn=$('cmSendTestEmail');
- if(!confirm('Send the updated volunteer assignment email for DEV committee record ID 4 to the email address saved on that record?'))return;
+ if(!confirm('Send a test email for committee record ID 4 to the DEV test mailbox?'))return;
  btn.disabled=true;status('Requesting test email…');
  try{
   // The Edge Function checks the admin session and reads role ID 4 from the database.
@@ -183,45 +183,12 @@ $('cmSendTestEmail').addEventListener('click',async()=>{
   const {data,error}=await db.functions.invoke('pack873-volunteer-email-dev',{body:{role_id:4}});
   if(error)throw error;
   if(!data||data.success!==true)throw new Error(data?.error||'Email service did not confirm delivery request.');
-  status('Gmail accepted the DEV volunteer assignment email for committee record ID 4. Check the recipient email address saved on that record.');
+  status('Test email accepted for pack873ops.dev@gmail.com. Check the mailbox.');
  }catch(err){status('Test email was not sent: '+(err.message||'Email function unavailable. Configure the DEV Supabase Edge Function first.'))}
  finally{btn.disabled=false}
 });
 $('cmAdd').addEventListener('click',()=>showEditor());$('cmCancel').addEventListener('click',()=>{$('cmEditor').hidden=true});
-$('cmEditor').addEventListener('submit',async e=>{
- e.preventDefault();
- if(!isAdmin||!currentUser)return;
- const payload={role_name:$('cmRole').value.trim(),volunteer_name:$('cmName').value.trim(),email:$('cmContactEmail').value.trim(),phone:$('cmPhone').value.trim()};
- if(Object.values(payload).some(v=>!v)){status('All fields are required.');return}
- const isNew=editingId===null;
- const saveButton=$('cmEditor').querySelector('[type="submit"]');
- if(saveButton)saveButton.disabled=true;
- status('Saving committee assignment…');
- try{
-  // Return the database-generated ID so the email function can fetch this exact record.
-  const query=isNew
-   ?db.from('committee_roles').insert(payload).select('id').single()
-   :db.from('committee_roles').update(payload).eq('id',editingId);
-  const {data:saved,error:saveError}=await query;
-  if(saveError){status(saveError.code==='23505'?'That committee role already exists.':saveError.message);return}
-  $('cmEditor').hidden=true;
-  await loadRows();
-  if(!isNew){status('Committee assignment updated. No email was sent.');return}
-  if(!Number.isSafeInteger(saved?.id)){
-   status('Assignment saved, but automatic email was not sent because the new record ID was unavailable.');return;
-  }
-  status('Assignment saved. Sending volunteer assignment email…');
-  try{
-   // The Edge Function checks Admin authorization and reads the saved record by ID.
-   const {data:emailResult,error:emailError}=await db.functions.invoke('pack873-volunteer-email-dev',{body:{role_id:saved.id}});
-   if(emailError)throw emailError;
-   if(emailResult?.success!==true)throw new Error(emailResult?.error||'Email service did not accept the request.');
-   status('Assignment saved. Gmail accepted the volunteer assignment email for '+payload.email+'.');
-  }catch(emailError){
-   status('Assignment saved, but email was not sent: '+(emailError?.message||'Email service unavailable')+'. You can retry after resolving the email issue.');
-  }
- }finally{if(saveButton)saveButton.disabled=false}
-});
+$('cmEditor').addEventListener('submit',async e=>{e.preventDefault();if(!isAdmin)return;const payload={role_name:$('cmRole').value.trim(),volunteer_name:$('cmName').value.trim(),email:$('cmContactEmail').value.trim(),phone:$('cmPhone').value.trim()};if(Object.values(payload).some(v=>!v)){status('All fields are required.');return}status('Saving…');const query=editingId===null?db.from('committee_roles').insert(payload):db.from('committee_roles').update(payload).eq('id',editingId);const {error}=await query;if(error){status(error.code==='23505'?'That committee role already exists.':error.message);return}$('cmEditor').hidden=true;await loadRows()});
 async function removeRole(entry){if(!isAdmin||!confirm(`Delete the role “${entry.role_name}”?`))return;status('Deleting…');const {error}=await db.from('committee_roles').delete().eq('id',entry.id);if(error)status(error.message);else await loadRows()}
 db.auth.onAuthStateChange(()=>{if(!$('committeeOverlay').hidden)setTimeout(refreshSession,0)});
 if(location.hash==='#committee')openPanel();window.addEventListener('hashchange',()=>{if(location.hash==='#committee')openPanel()});
