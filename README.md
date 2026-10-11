@@ -42,3 +42,6 @@ Run node --test tests/announcements.test.cjs to verify menu gating, rotation and
 
 Migration 006 was applied to the DEV database on October 11, 2026. The SQL rollback test verified authenticated publishing, public reading, long text, and blocking pending-password users. Public author-ID access and public inserts are denied. The live homepage is ready for its first real announcement; the carousel/detail behavior is covered by automated tests.
 
+
+Migration 007 was applied on October 11, 2026. Live rollback tests verified two roles assigned to the same volunteer, chosen-role publishing, original-author/date preservation, owner edits/deletes/restores, blocked cross-author edits/deletes and admin moderation. Existing posts were preserved. Run tests/announcement-management-rollback.sql in the DEV SQL Editor as postgres to repeat the transaction-only test.
+
