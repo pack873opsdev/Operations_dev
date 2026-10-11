@@ -33,4 +33,4 @@ Supabase functions and SQL must be deployed separately from Cloudflare. Keep Sup
 
 ## Verified status
 
-GitHub upload succeeded on October 11, 2026, through commit `7fd48d3`. Both Supabase functions have been deployed and the pending SQL migrations applied successfully. The live administrator login-status controls work. Existing volunteer account creation awaits confirmation.
+GitHub upload succeeded on October 11, 2026, through commit `7fd48d3`. Both Supabase functions have been deployed and the pending SQL migrations applied successfully. The live administrator login-status controls work. Four existing volunteer login accounts were created with temporary-password delivery assumed; all show change pending. No emails were sent during provisioning.

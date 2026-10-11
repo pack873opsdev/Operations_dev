@@ -31,4 +31,4 @@ Supabase documentation: https://supabase.com/docs/reference/javascript/auth-admi
 - Migrations 004 and 005 applied successfully in the existing DEV database. Do not rerun the one-time cutover migration 005.
 - Live administrator login-status retrieval succeeds. Gmail secret names are present; no test email was sent during deployment, and inbox delivery remains unverified.
 - The dashboard access deployment uses `file2.ts` for the shared email helper; the Git source uses the equivalent `_shared/temporary-password-email.ts` module.
-- Four existing volunteer login accounts await explicit account-creation confirmation. No personal passwords were reset.
+- Four existing volunteer login accounts were created after owner confirmation; live status shows temporary password sent (assumed) and change pending. No emails were sent during provisioning. No personal passwords were reset. The real first-login password-change flow remains to be tested by a volunteer.
