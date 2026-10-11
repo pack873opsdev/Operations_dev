@@ -35,7 +35,7 @@ Supabase documentation: https://supabase.com/docs/reference/javascript/auth-admi
 
 ## Volunteer announcements
 
-Apply migration 006 once to enable announcements. Completed volunteer logins can publish Topic Name, Topic Description and Full Details with no custom text-length limits. The database records the author, posting date and current active assigned roles. The public homepage reads only announcement content, role and date; author IDs and committee contact details remain private. Announcements rotate every 10 seconds with previous/next and pause controls; Read More opens the full text. No edit/delete workflow is included yet.
+Apply migration 006 once to enable announcements. Completed volunteer logins can publish Topic Name, Topic Description and Full Details with no custom text-length limits. The database records the author, posting date and current active assigned roles. The public homepage reads only announcement content, role and date; author IDs and committee contact details remain private. Announcements rotate every 10 seconds with previous/next and pause controls; Read More opens the full text. Migration 007 adds assigned-role selection and author/admin edit/delete controls. Deleted posts are hidden from the homepage and can be restored from Show deleted announcements. Publishing uses authenticated database RPCs; authors cannot impersonate another role or change another author's posts.
 
 Run node --test tests/announcements.test.cjs to verify menu gating, rotation and full-details behavior.
 
