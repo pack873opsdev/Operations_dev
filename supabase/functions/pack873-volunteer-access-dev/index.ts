@@ -23,7 +23,7 @@ Deno.serve(async req => {
     }
     if (user.app_metadata.pack873_role !== 'admin' || user.app_metadata.pack873_must_change_password === true) return reply({error:'Admin access required'},403);
     if (!['provision','provision_all','statuses','mark_sent'].includes(body.action)) return reply({error:'Unknown action'},400);
-    const {data:volunteers,error:lookupError} = await admin.from('volunteers').select('id,email');
+    const {data:volunteers,error:lookupError} = await admin.from('volunteers').select('id,email,temporary_password_delivery_assumed');
     if (lookupError) return reply({error:'Unable to read volunteers'},500);
     const accounts = [];
     for (let page=1;;page++) {
@@ -51,7 +51,7 @@ Deno.serve(async req => {
     for (const v of body.action==='provision_all'?(volunteers||[]):[volunteer!]) {
       const address=v.email.trim().toLowerCase();
       if (byEmail.has(address)) {results.push({email:address,created:false});continue;}
-      const {data,error:createError}=await admin.auth.admin.createUser({email:address,password:initial,email_confirm:true,app_metadata:{pack873_role:'volunteer',pack873_must_change_password:true,pack873_temporary_password_sent_at:null}});
+      const {data,error:createError}=await admin.auth.admin.createUser({email:address,password:initial,email_confirm:true,app_metadata:{pack873_role:'volunteer',pack873_must_change_password:true,pack873_temporary_password_sent_at:v.temporary_password_delivery_assumed?new Date().toISOString():null,pack873_temporary_password_delivery_assumed:!!v.temporary_password_delivery_assumed}});
       if (createError) {results.push({email:address,created:false,error:'Unable to create account; retry provisioning'});continue;}
       if(data.user) byEmail.set(address,data.user);
       results.push({email:address,created:true});
