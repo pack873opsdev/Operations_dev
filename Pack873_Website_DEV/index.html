@@ -155,27 +155,139 @@ a.brand .brand-mark,a.brand strong,a.brand small{display:none!important}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!transitioning)schedule();else if(document.hidden)clearTimeout(timeout)});
  schedule();
 })();
-</script><div id="committeeOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="committeeTitle"><section id="committeePanel"><div class="cm-top"><h2 id="committeeTitle">Pack 873 Committee Members</h2><button class="cm-btn cm-secondary" id="cmClose" aria-label="Close committee directory">✕ Close</button></div><p>Sign in to view committee contact information. Only administrators can make changes.</p><div id="cmSignedOut"><form id="cmLogin" class="cm-row"><input id="cmEmail" type="email" autocomplete="username" placeholder="Email" aria-label="Email" required><input id="cmPassword" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" required><button class="cm-btn" type="submit">Sign in</button></form></div><div id="cmSignedIn" hidden><div class="cm-row"><span id="cmIdentity"></span><button class="cm-btn cm-secondary" id="cmLogout">Sign out</button><button class="cm-btn" id="cmAdd" hidden>Add committee role</button><button class="cm-btn cm-secondary" id="cmSendTestEmail" type="button" hidden>Send Test Email</button></div><div class="cm-scroll"><table><thead><tr><th>Role</th><th>Volunteer</th><th>Email</th><th>Phone</th><th id="cmActionsHead" hidden>Actions</th></tr></thead><tbody id="cmRows"></tbody></table></div><form id="cmEditor" hidden><h3 id="cmEditorTitle">Add committee role</h3><div class="cm-grid"><label>Role<input id="cmRole" maxlength="120" required></label><label>Volunteer name<input id="cmName" maxlength="160" required></label><label>Email<input id="cmContactEmail" type="email" maxlength="254" required></label><label>Phone<input id="cmPhone" type="tel" maxlength="50" required></label></div><div class="cm-row"><button class="cm-btn" type="submit">Save</button><button class="cm-btn cm-secondary" id="cmCancel" type="button">Cancel</button></div></form></div><p id="cmStatus" class="cm-status" role="status" aria-live="polite"></p></section></div><script type="module" id="committee-dev-script">
+</script><div id="committeeOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="committeeTitle"><section id="committeePanel"><div class="cm-top"><h2 id="committeeTitle">Pack 873 Committee Members</h2><button class="cm-btn cm-secondary" id="cmClose" aria-label="Close committee directory">✕ Close</button></div><p>Sign in to view committee contact information. Only administrators can make changes.</p><div id="cmSignedOut"><form id="cmLogin" class="cm-row"><input id="cmEmail" type="email" autocomplete="username" placeholder="Email" aria-label="Email" required><input id="cmPassword" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" required><button class="cm-btn" type="submit">Sign in</button></form></div><div id="cmFirstPassword" hidden><h3>Set your personal password</h3><p>Before viewing the committee directory, change your temporary password.</p><form id="cmPasswordChange"><input id="cmNewPassword" type="password" autocomplete="new-password" minlength="12" placeholder="New password (12+ characters)" required><input id="cmConfirmPassword" type="password" autocomplete="new-password" minlength="12" placeholder="Confirm new password" required><button class="cm-btn" type="submit">Set password</button></form><button class="cm-btn cm-secondary" id="cmFirstLogout" type="button">Sign out</button></div><div id="cmSignedIn" hidden><div class="cm-row"><span id="cmIdentity"></span><button class="cm-btn cm-secondary" id="cmLogout">Sign out</button><button class="cm-btn" id="cmAdd" hidden>Add committee role</button><button class="cm-btn cm-secondary" id="cmSendTestEmail" type="button" hidden>Send Test Email</button><button class="cm-btn cm-secondary" id="cmManageMasters" type="button" hidden>Manage Roles &amp; Volunteers</button></div><div class="cm-row" id="cmStatusFilterRow" hidden><label for="cmStatusFilter">Filter by status (Admin)</label><select id="cmStatusFilter"><option value="all">All</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select></div><div class="cm-scroll"><table><thead><tr><th>Role</th><th>Volunteer</th><th>Email</th><th>Phone</th><th>Status</th><th id="cmActionsHead" hidden>Actions</th></tr></thead><tbody id="cmRows"></tbody></table></div><form id="cmEditor" hidden><h3 id="cmEditorTitle">Add committee role</h3><div class="cm-grid"><label>Role<select id="cmRole" required><option value="">Select a role</option></select></label><label>Volunteer name<select id="cmName" required><option value="">Select a volunteer</option></select></label><label>Email<input id="cmContactEmail" type="email" maxlength="254" readonly required></label><label>Phone<input id="cmPhone" type="tel" maxlength="50" readonly></label><label>Status<select id="cmAssignmentStatus" required><option value="Active">Active</option><option value="Inactive">Inactive</option></select></label></div><div class="cm-row"><button class="cm-btn" type="submit">Save</button><button class="cm-btn cm-secondary" id="cmCancel" type="button">Cancel</button></div></form><section id="cmMasters" hidden><h3>Manage Role &amp; Volunteer Lists (Admin)</h3><div class="cm-grid"><form id="cmRoleMasterForm"><h4>Role</h4><input id="cmRoleMasterName" maxlength="120" required placeholder="Role name"><div class="cm-row"><button class="cm-btn" type="submit">Save role</button><button class="cm-btn cm-secondary" type="button" id="cmRoleMasterClear">New</button></div><select id="cmRoleMasterList" size="6" aria-label="Existing roles" style="width:100%"></select></form><form id="cmVolunteerMasterForm"><h4>Volunteer</h4><input id="cmVolunteerMasterName" maxlength="160" required placeholder="Full name"><input id="cmVolunteerMasterEmail" type="email" maxlength="254" required placeholder="Email"><input id="cmVolunteerMasterPhone" type="tel" maxlength="50" placeholder="Phone"><div class="cm-row"><button class="cm-btn" type="submit">Save volunteer</button><button class="cm-btn cm-secondary" type="button" id="cmVolunteerMasterClear">New</button></div><select id="cmVolunteerMasterList" size="6" aria-label="Existing volunteers" style="width:100%"></select></form></div><p>To avoid breaking assignments, master records already in use cannot be deleted here. Select an existing entry to edit it.</p></section></div><p id="cmStatus" class="cm-status" role="status" aria-live="polite"></p></section></div><script type="module" id="committee-dev-script">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const db=createClient('https://ksgbrkqpjhsdaxfuxmle.supabase.co','sb_publishable_ADamGksUef2N8anbAAJmbQ_wGKR2yNl');
-const $=id=>document.getElementById(id);let currentUser=null,isAdmin=false,editingId=null;
+const $=id=>document.getElementById(id);let currentUser=null,isAdmin=false,mustChangePassword=false,editingId=null,roles=[],volunteers=[],roleMasterEditing=null,volunteerMasterEditing=null;
 const status=message=>{$('cmStatus').textContent=message||''};
 function openPanel(e){if(e)e.preventDefault();$('committeeOverlay').hidden=false;document.body.style.overflow='hidden';refreshSession()}
 function closePanel(){$('committeeOverlay').hidden=true;document.body.style.overflow='';$('cmEditor').hidden=true}
 $('committeeNavLink').addEventListener('click',openPanel);$('cmClose').addEventListener('click',closePanel);
 $('committeeOverlay').addEventListener('click',e=>{if(e.target===$('committeeOverlay'))closePanel()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('committeeOverlay').hidden)closePanel()});
-function setAuth(user){currentUser=user;isAdmin=user?.app_metadata?.pack873_role==='admin';$('cmSignedOut').hidden=!!user;$('cmSignedIn').hidden=!user;$('cmAdd').hidden=!isAdmin;$('cmSendTestEmail').hidden=!isAdmin;$('cmActionsHead').hidden=!isAdmin;$('cmIdentity').textContent=user?(user.email+(isAdmin?' (Admin)':'')):'';if(!user){$('cmRows').replaceChildren();$('cmEditor').hidden=true}}
-async function refreshSession(){try{const {data,error}=await db.auth.getUser();if(error&&error.name!=='AuthSessionMissingError')throw error;setAuth(data?.user||null);if(data?.user)await loadRows();else status('Sign in to see committee members.')}catch(e){status(e.message||'Unable to verify sign-in.')}}
+function setAuth(user){currentUser=user;isAdmin=user?.app_metadata?.pack873_role==='admin';mustChangePassword=!!user?.app_metadata?.pack873_must_change_password;
+ $('cmSignedOut').hidden=!!user;$('cmFirstPassword').hidden=!user||!mustChangePassword;$('cmSignedIn').hidden=!user||mustChangePassword;
+ $('cmAdd').hidden=!isAdmin;$('cmSendTestEmail').hidden=!isAdmin;$('cmManageMasters').hidden=!isAdmin;
+ if(!isAdmin)$('cmMasters').hidden=true;$('cmActionsHead').hidden=!isAdmin;$('cmStatusFilterRow').hidden=!isAdmin;
+ $('cmIdentity').textContent=user?(user.email+(isAdmin?' (Admin)':'')):'';
+ if(!user||mustChangePassword){$('cmRows').replaceChildren();$('cmEditor').hidden=true}
+}
+async function refreshSession(){try{const {data,error}=await db.auth.getUser();if(error&&error.name!=='AuthSessionMissingError')throw error;setAuth(data?.user||null);if(data?.user&&!mustChangePassword){await loadMasters();await loadRows();}else if(mustChangePassword){status('You must set your own password before accessing the directory.')}else status('Sign in to see committee members.')}catch(e){status(e.message||'Unable to verify sign-in.')}}
 $('cmLogin').addEventListener('submit',async e=>{e.preventDefault();status('Signing in…');const {error}=await db.auth.signInWithPassword({email:$('cmEmail').value.trim(),password:$('cmPassword').value});$('cmPassword').value='';if(error){status(error.message);return}await refreshSession()});
+$('cmFirstLogout').addEventListener('click',async()=>{await db.auth.signOut();setAuth(null);status('Signed out.')});
+$('cmPasswordChange').addEventListener('submit',async e=>{
+ e.preventDefault();if(!currentUser||!mustChangePassword)return;
+ const password=$('cmNewPassword').value,confirmPassword=$('cmConfirmPassword').value;
+ if(password!==confirmPassword){status('Passwords do not match.');return}
+ if(password.length<12||password==='Op$D#v01'){status('Choose a new password of at least 12 characters, different from the temporary password.');return}
+ const btn=$('cmPasswordChange').querySelector('button[type="submit"]');btn.disabled=true;status('Updating password…');
+ try{
+  const {data,error:finishError}=await db.functions.invoke('pack873-volunteer-access-dev',{body:{action:'complete_password_change',new_password:password}});
+  if(finishError||data?.success!==true)throw new Error(data?.error||finishError?.message||'Could not finish password setup. Please try again.');
+  await db.auth.signOut();setAuth(null);$('cmNewPassword').value='';$('cmConfirmPassword').value='';
+  status('Password updated. Sign in again using your new password.');
+ }catch(err){status('Password setup incomplete: '+err.message)}finally{btn.disabled=false}
+});
 $('cmLogout').addEventListener('click',async()=>{const {error}=await db.auth.signOut();if(error)status(error.message);else{setAuth(null);status('Signed out.')}});
 function cell(row,value){const td=document.createElement('td');td.textContent=value||'';row.append(td);return td}
-async function loadRows(){status('Loading committee members…');const {data,error}=await db.from('committee_roles').select('id,role_name,volunteer_name,email,phone').order('role_name');if(error){status(error.message);return}$('cmRows').replaceChildren();for(const entry of data){const tr=document.createElement('tr');cell(tr,entry.role_name);cell(tr,entry.volunteer_name);cell(tr,entry.email);cell(tr,entry.phone);if(isAdmin){const td=document.createElement('td');td.className='cm-actions';const edit=document.createElement('button');edit.className='cm-btn cm-secondary';edit.textContent='Edit';edit.addEventListener('click',()=>showEditor(entry));const del=document.createElement('button');del.className='cm-btn cm-danger';del.textContent='Delete';del.addEventListener('click',()=>removeRole(entry));td.append(edit,del);tr.append(td)}$('cmRows').append(tr)}if(!data.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=isAdmin?5:4;td.textContent='No committee roles have been added yet.';tr.append(td);$('cmRows').append(tr)}status('')}
-function showEditor(entry=null){if(!isAdmin)return;editingId=entry?.id??null;$('cmEditorTitle').textContent=entry?'Edit committee role':'Add committee role';$('cmRole').value=entry?.role_name||'';$('cmName').value=entry?.volunteer_name||'';$('cmContactEmail').value=entry?.email||'';$('cmPhone').value=entry?.phone||'';$('cmEditor').hidden=false;$('cmRole').focus()}
+async function loadRows(){
+ status('Loading committee members…');
+ const {data,error}=await db.from('committee_roles').select('id,role_name,volunteer_name,email,phone,role_master_id,volunteer_id,status').order('role_name');
+ if(error){status(error.message);return}
+ const filter=isAdmin?$('cmStatusFilter').value:'all';
+ const shown=(data||[]).filter(entry=>filter==='all'||entry.status===filter);
+ $('cmRows').replaceChildren();
+ for(const entry of shown){
+  const tr=document.createElement('tr');cell(tr,entry.role_name);cell(tr,entry.volunteer_name);cell(tr,entry.email);cell(tr,entry.phone);
+  if(isAdmin){
+   const td=document.createElement('td');
+   const pill=document.createElement('button');
+   pill.type='button';
+   pill.title='Click to change status';
+   pill.setAttribute('aria-label','Change status for '+entry.role_name+' — '+entry.volunteer_name);
+   const select=document.createElement('select');
+   select.setAttribute('aria-label','Choose status for '+entry.role_name+' — '+entry.volunteer_name);
+   for(const value of ['Active','Inactive']){const opt=document.createElement('option');opt.value=value;opt.textContent=value;select.append(opt)}
+   const stylePill=()=>{
+    const active=(entry.status||'Active')==='Active';
+    pill.textContent=active?'Active':'Inactive';
+    pill.style.cssText='display:inline-block;border:1px solid '+(active?'#166534':'#B45309')+';background:'+(active?'#166534':'#B45309')+';color:#fff;border-radius:6px;padding:5px 12px;font-weight:700;cursor:pointer;min-width:82px;text-align:center;';
+   };
+   const showPill=()=>{stylePill();select.hidden=true;pill.hidden=false};
+   pill.addEventListener('click',()=>{select.value=entry.status||'Active';pill.hidden=true;select.hidden=false;select.focus()});
+   select.addEventListener('change',async()=>{
+    const previous=entry.status||'Active',next=select.value;
+    if(previous===next){showPill();return}
+    select.disabled=true;status('Updating status…');
+    const {data:updated,error:updateError}=await db.from('committee_roles').update({status:next}).eq('id',entry.id).select('id,status').single();
+    select.disabled=false;
+    if(updateError||!updated){select.value=previous;status('Status update failed: '+(updateError?.message||'No record was updated.'));showPill();return}
+    entry.status=updated.status;status('Status changed to '+updated.status+'. No assignment email sent.');
+    showPill();
+    if($('cmStatusFilter').value!=='all'&&$('cmStatusFilter').value!==updated.status)await loadRows();
+   });
+   select.addEventListener('blur',()=>{if(!select.disabled)showPill()});
+   td.append(pill,select);tr.append(td);showPill();
+  }else{
+   const td=cell(tr,entry.status||'Active');
+   const active=(entry.status||'Active')==='Active';
+   td.style.fontWeight='700';td.style.color=active?'#166534':'#B45309';
+  }
+  if(isAdmin){const td=document.createElement('td');td.className='cm-actions';const edit=document.createElement('button');edit.className='cm-btn cm-secondary';edit.textContent='Edit';edit.addEventListener('click',()=>showEditor(entry));const del=document.createElement('button');del.className='cm-btn cm-danger';del.textContent='Delete';del.addEventListener('click',()=>removeRole(entry));td.append(edit,del);tr.append(td)}
+  $('cmRows').append(tr);
+ }
+ if(!shown.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=isAdmin?6:5;td.textContent=filter==='all'?'No committee roles have been added yet.':'No '+filter.toLowerCase()+' committee assignments found.';tr.append(td);$('cmRows').append(tr)}
+ status('');
+}
+$('cmStatusFilter').addEventListener('change',()=>{if(isAdmin)loadRows()});
+function fillOptions(id,items,labelFn,selected=''){
+ const el=$(id);el.replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Select '+(id==='cmRole'?'a role':'a volunteer');el.append(placeholder);
+ for(const item of items){const option=document.createElement('option');option.value=String(item.id);option.textContent=labelFn(item);el.append(option)}el.value=String(selected||'');
+}
+async function loadMasters(){
+ const [rr,vv]=await Promise.all([db.from('volunteer_roles').select('id,role_name').order('role_name'),db.from('volunteers').select('id,volunteer_name,email,phone').order('volunteer_name')]);
+ if(rr.error||vv.error){status('Unable to load role/volunteer dropdowns: '+(rr.error?.message||vv.error?.message));return false}
+ roles=rr.data||[];volunteers=vv.data||[];
+ fillOptions('cmRole',roles,r=>r.role_name,$('cmRole').value);fillOptions('cmName',volunteers,v=>v.volunteer_name,$('cmName').value);
+ for(const [id,items,label] of [['cmRoleMasterList',roles,r=>r.role_name],['cmVolunteerMasterList',volunteers,v=>v.volunteer_name+' — '+v.email]]){
+  const el=$(id);el.replaceChildren();for(const item of items){const opt=document.createElement('option');opt.value=String(item.id);opt.textContent=label(item);el.append(opt)}
+ }
+ return true;
+}
+function selectedVolunteer(){return volunteers.find(v=>String(v.id)===$('cmName').value)}
+$('cmName').addEventListener('change',()=>{const v=selectedVolunteer();$('cmContactEmail').value=v?.email||'';$('cmPhone').value=v?.phone||''});
+async function showEditor(entry=null){
+ if(!isAdmin)return;const ok=await loadMasters();if(!ok)return;
+ editingId=entry?.id??null;$('cmEditorTitle').textContent=entry?'Edit committee role':'Add committee role';
+ const r=roles.find(x=>x.id===entry?.role_master_id)||roles.find(x=>x.role_name===entry?.role_name);
+ const v=volunteers.find(x=>x.id===entry?.volunteer_id)||volunteers.find(x=>x.email===entry?.email);
+ $('cmRole').value=r?String(r.id):'';$('cmName').value=v?String(v.id):'';
+ $('cmContactEmail').value=v?.email||'';$('cmPhone').value=v?.phone||'';$('cmAssignmentStatus').value=entry?.status||'Active';
+ $('cmEditor').hidden=false;$('cmRole').focus();
+ if(entry&&(!r||!v))status('This older assignment needs matching master-list entries before it can be edited.');
+}
+$('cmManageMasters').addEventListener('click',async()=>{if(!isAdmin)return;await loadMasters();$('cmMasters').hidden=!$('cmMasters').hidden});
+function clearRoleMaster(){roleMasterEditing=null;$('cmRoleMasterName').value='';$('cmRoleMasterList').selectedIndex=-1}
+function clearVolunteerMaster(){volunteerMasterEditing=null;for(const id of ['cmVolunteerMasterName','cmVolunteerMasterEmail','cmVolunteerMasterPhone'])$(id).value='';$('cmVolunteerMasterList').selectedIndex=-1}
+$('cmRoleMasterClear').addEventListener('click',clearRoleMaster);$('cmVolunteerMasterClear').addEventListener('click',clearVolunteerMaster);
+$('cmRoleMasterList').addEventListener('change',()=>{const r=roles.find(x=>String(x.id)===$('cmRoleMasterList').value);if(!r)return;roleMasterEditing=r.id;$('cmRoleMasterName').value=r.role_name});
+$('cmVolunteerMasterList').addEventListener('change',()=>{const v=volunteers.find(x=>String(x.id)===$('cmVolunteerMasterList').value);if(!v)return;volunteerMasterEditing=v.id;$('cmVolunteerMasterName').value=v.volunteer_name;$('cmVolunteerMasterEmail').value=v.email;$('cmVolunteerMasterPhone').value=v.phone||''});
+$('cmRoleMasterForm').addEventListener('submit',async e=>{e.preventDefault();if(!isAdmin)return;const role_name=$('cmRoleMasterName').value.trim();if(!role_name)return;const query=roleMasterEditing?db.from('volunteer_roles').update({role_name}).eq('id',roleMasterEditing):db.from('volunteer_roles').insert({role_name});const {error}=await query;if(error){status('Could not save role: '+error.message);return}clearRoleMaster();await loadMasters();await loadRows();status('Role master saved. No assignment email sent.')});
+$('cmVolunteerMasterForm').addEventListener('submit',async e=>{e.preventDefault();if(!isAdmin)return;const payload={volunteer_name:$('cmVolunteerMasterName').value.trim(),email:$('cmVolunteerMasterEmail').value.trim(),phone:$('cmVolunteerMasterPhone').value.trim()};if(!payload.volunteer_name||!payload.email)return;const query=volunteerMasterEditing?db.from('volunteers').update(payload).eq('id',volunteerMasterEditing):db.from('volunteers').insert(payload);const {error}=await query;if(error){status('Could not save volunteer: '+error.message);return}
+ const isNewVolunteer=!volunteerMasterEditing;
+ clearVolunteerMaster();await loadMasters();await loadRows();
+ if(!isNewVolunteer){status('Volunteer master saved. Existing login credentials were not changed.');return}
+ status('Volunteer saved. Creating view-only login…');
+ try{
+  const {data,error:accessError}=await db.functions.invoke('pack873-volunteer-access-dev',{body:{action:'provision',email:payload.email}});
+  if(accessError||data?.success!==true)throw new Error(data?.error||accessError?.message||'Account provisioning failed');
+  status(data.created?'Volunteer saved. View-only login created. Share the DEV website link and temporary password securely; first-login password change is required.':'Volunteer saved. Existing login account was preserved.');
+ }catch(accessError){status('Volunteer saved, but login was NOT created: '+accessError.message+'. Retry provisioning before sharing access.')}
+});
 $('cmSendTestEmail').addEventListener('click',async()=>{
  if(!isAdmin||!currentUser)return;
  const btn=$('cmSendTestEmail');
- if(!confirm('Send a test email for committee record ID 4 to the DEV test mailbox?'))return;
+ if(!confirm('Send the updated volunteer assignment email for DEV committee record ID 4 to the email address saved on that record?'))return;
  btn.disabled=true;status('Requesting test email…');
  try{
   // The Edge Function checks the admin session and reads role ID 4 from the database.
@@ -183,12 +295,46 @@ $('cmSendTestEmail').addEventListener('click',async()=>{
   const {data,error}=await db.functions.invoke('pack873-volunteer-email-dev',{body:{role_id:4}});
   if(error)throw error;
   if(!data||data.success!==true)throw new Error(data?.error||'Email service did not confirm delivery request.');
-  status('Test email accepted for pack873ops.dev@gmail.com. Check the mailbox.');
+  status('Gmail accepted the DEV volunteer assignment email for committee record ID 4. Check the recipient email address saved on that record.');
  }catch(err){status('Test email was not sent: '+(err.message||'Email function unavailable. Configure the DEV Supabase Edge Function first.'))}
  finally{btn.disabled=false}
 });
 $('cmAdd').addEventListener('click',()=>showEditor());$('cmCancel').addEventListener('click',()=>{$('cmEditor').hidden=true});
-$('cmEditor').addEventListener('submit',async e=>{e.preventDefault();if(!isAdmin)return;const payload={role_name:$('cmRole').value.trim(),volunteer_name:$('cmName').value.trim(),email:$('cmContactEmail').value.trim(),phone:$('cmPhone').value.trim()};if(Object.values(payload).some(v=>!v)){status('All fields are required.');return}status('Saving…');const query=editingId===null?db.from('committee_roles').insert(payload):db.from('committee_roles').update(payload).eq('id',editingId);const {error}=await query;if(error){status(error.code==='23505'?'That committee role already exists.':error.message);return}$('cmEditor').hidden=true;await loadRows()});
+$('cmEditor').addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!isAdmin||!currentUser)return;
+ const role=roles.find(r=>String(r.id)===$('cmRole').value),volunteer=selectedVolunteer();
+ if(!role||!volunteer){status('Select a role and a volunteer from the master lists.');return}
+ const payload={role_master_id:role.id,volunteer_id:volunteer.id,role_name:role.role_name,volunteer_name:volunteer.volunteer_name,email:volunteer.email,phone:volunteer.phone||'',status:$('cmAssignmentStatus').value};
+ const isNew=editingId===null;
+ const saveButton=$('cmEditor').querySelector('[type="submit"]');
+ if(saveButton)saveButton.disabled=true;
+ status('Saving committee assignment…');
+ try{
+  // Return the database-generated ID so the email function can fetch this exact record.
+  const query=isNew
+   ?db.from('committee_roles').insert(payload).select('id').single()
+   :db.from('committee_roles').update(payload).eq('id',editingId);
+  const {data:saved,error:saveError}=await query;
+  if(saveError){status(saveError.code==='23505'?'That committee role already exists.':saveError.message);return}
+  $('cmEditor').hidden=true;
+  await loadRows();
+  if(!isNew){status('Committee assignment updated. No email was sent.');return}
+  if(!Number.isSafeInteger(saved?.id)){
+   status('Assignment saved, but automatic email was not sent because the new record ID was unavailable.');return;
+  }
+  status('Assignment saved. Sending volunteer assignment email…');
+  try{
+   // The Edge Function checks Admin authorization and reads the saved record by ID.
+   const {data:emailResult,error:emailError}=await db.functions.invoke('pack873-volunteer-email-dev',{body:{role_id:saved.id}});
+   if(emailError)throw emailError;
+   if(emailResult?.success!==true)throw new Error(emailResult?.error||'Email service did not accept the request.');
+   status('Assignment saved. Gmail accepted the volunteer assignment email for '+payload.email+'.');
+  }catch(emailError){
+   status('Assignment saved, but email was not sent: '+(emailError?.message||'Email service unavailable')+'. You can retry after resolving the email issue.');
+  }
+ }finally{if(saveButton)saveButton.disabled=false}
+});
 async function removeRole(entry){if(!isAdmin||!confirm(`Delete the role “${entry.role_name}”?`))return;status('Deleting…');const {error}=await db.from('committee_roles').delete().eq('id',entry.id);if(error)status(error.message);else await loadRows()}
 db.auth.onAuthStateChange(()=>{if(!$('committeeOverlay').hidden)setTimeout(refreshSession,0)});
 if(location.hash==='#committee')openPanel();window.addEventListener('hashchange',()=>{if(location.hash==='#committee')openPanel()});
