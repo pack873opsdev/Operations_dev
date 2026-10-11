@@ -16,10 +16,9 @@ Deno.serve(async req => {
     const body = await req.json();
     if (body.action === 'complete_password_change') {
       if (user.app_metadata.pack873_role !== 'volunteer' || user.app_metadata.pack873_must_change_password !== true) return reply({error:'Password setup not required'},403);
-      const initial = 'Pack873ops#Dev';
-      if (typeof body.new_password !== 'string' || body.new_password.length < 12 || body.new_password === initial) return reply({error:'Choose a different password of at least 12 characters'},400);
+      if (typeof body.new_password !== 'string' || body.new_password.length === 0) return reply({error:'Enter a password'},400);
       const {error:updateError} = await admin.auth.admin.updateUserById(user.id, {password:body.new_password, app_metadata:{...user.app_metadata,pack873_must_change_password:false,pack873_temporary_password_sent_at:null,pack873_password_changed_at:new Date().toISOString()}});
-      if (updateError) return reply({error:'Unable to finish password setup'},500);
+      if (updateError) return reply({error:updateError.message||'Unable to finish password setup'},400);
       return reply({success:true});
     }
     if (user.app_metadata.pack873_role !== 'admin' || user.app_metadata.pack873_must_change_password === true) return reply({error:'Admin access required'},403);

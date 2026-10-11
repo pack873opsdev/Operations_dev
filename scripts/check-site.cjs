@@ -6,6 +6,8 @@ for(const [,attrs,source] of scripts){
  if(!source.trim())continue;
  new vm.Script(source.replace(/^import .*;$/gm,''));
 }
-assert(html.includes("input.insertAdjacentElement('afterend',toggle)"));
+assert(html.includes("checkbox.type='checkbox'"));
+assert(html.includes("updateWelcome(data||[])"));
+assert(!html.includes('minlength="12"'));
 assert(html.includes("const {error:loginError}=await db.auth.signInWithPassword({email,password})"));
 console.log('Inline JavaScript and JSON syntax verified; password controls and automatic re-login present.');
