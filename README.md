@@ -39,3 +39,6 @@ Apply migration 006 once to enable announcements. Completed volunteer logins can
 
 Run node --test tests/announcements.test.cjs to verify menu gating, rotation and full-details behavior.
 
+
+Migration 006 was applied to the DEV database on October 11, 2026. The SQL rollback test verified authenticated publishing, public reading, long text, and blocking pending-password users. Public author-ID access and public inserts are denied. The live homepage is ready for its first real announcement; the carousel/detail behavior is covered by automated tests.
+
