@@ -23,3 +23,12 @@ The shared DEV default allows someone who knows a volunteer's email and the defa
 Run `node --test tests/volunteer-access.test.cjs` and `node scripts/check-site.cjs`. These use mocked Supabase responses and check browser-script syntax; live Supabase, SQL execution, actual Gmail delivery, and real first-login flows require the rollout above.
 
 Supabase documentation: https://supabase.com/docs/reference/javascript/auth-admin-updateuserbyid and https://supabase.com/docs/guides/functions/auth-legacy-jwt
+
+## Deployment status — October 11, 2026
+
+- GitHub commits uploaded to main; Cloudflare serves the updated administrator login-status controls.
+- Supabase volunteer-access function and corrected assignment-email function deployed through the dashboard.
+- Migrations 004 and 005 applied successfully in the existing DEV database. Do not rerun the one-time cutover migration 005.
+- Live administrator login-status retrieval succeeds. Gmail secret names are present; no test email was sent during deployment, and inbox delivery remains unverified.
+- The dashboard access deployment uses `file2.ts` for the shared email helper; the Git source uses the equivalent `_shared/temporary-password-email.ts` module.
+- Four existing volunteer login accounts await explicit account-creation confirmation. No personal passwords were reset.
