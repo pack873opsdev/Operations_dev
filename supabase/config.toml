@@ -1,0 +1,7 @@
+project_id = "ksgbrkqpjhsdaxfuxmle"
+
+[functions.pack873-volunteer-access-dev]
+verify_jwt = true
+
+[functions.pack873-volunteer-email-dev]
+verify_jwt = true
