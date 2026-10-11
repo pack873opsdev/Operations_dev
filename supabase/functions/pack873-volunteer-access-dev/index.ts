@@ -1,4 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { sendTemporaryPassword } from '../_shared/temporary-password-email.ts';
 
 const cors = {'Access-Control-Allow-Origin':'https://pack873-operations-dev.pages.dev','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const reply = (body: unknown, status = 200) => Response.json(body, {status, headers:cors});
@@ -15,14 +16,14 @@ Deno.serve(async req => {
     const body = await req.json();
     if (body.action === 'complete_password_change') {
       if (user.app_metadata.pack873_role !== 'volunteer' || user.app_metadata.pack873_must_change_password !== true) return reply({error:'Password setup not required'},403);
-      const initial = Deno.env.get('PACK873_DEV_INITIAL_PASSWORD') || 'Pack873#ops';
+      const initial = 'Pack873ops#Dev';
       if (typeof body.new_password !== 'string' || body.new_password.length < 12 || body.new_password === initial) return reply({error:'Choose a different password of at least 12 characters'},400);
       const {error:updateError} = await admin.auth.admin.updateUserById(user.id, {password:body.new_password, app_metadata:{...user.app_metadata,pack873_must_change_password:false,pack873_temporary_password_sent_at:null,pack873_password_changed_at:new Date().toISOString()}});
       if (updateError) return reply({error:'Unable to finish password setup'},500);
       return reply({success:true});
     }
     if (user.app_metadata.pack873_role !== 'admin' || user.app_metadata.pack873_must_change_password === true) return reply({error:'Admin access required'},403);
-    if (!['provision','provision_all','statuses','mark_sent'].includes(body.action)) return reply({error:'Unknown action'},400);
+    if (!['provision','provision_all','statuses','send_password'].includes(body.action)) return reply({error:'Unknown action'},400);
     const {data:volunteers,error:lookupError} = await admin.from('volunteers').select('id,email,temporary_password_delivery_assumed');
     if (lookupError) return reply({error:'Unable to read volunteers'},500);
     const accounts = [];
@@ -40,20 +41,29 @@ Deno.serve(async req => {
     const email = typeof body.email==='string'?body.email.trim().toLowerCase():'';
     const volunteer = (volunteers||[]).find(v=>v.email.trim().toLowerCase()===email);
     if (body.action!=='provision_all' && !volunteer) return reply({error:'Volunteer email not found'},404);
-    if (body.action==='mark_sent') {
+    if (body.action==='send_password') {
       const account=byEmail.get(email);
       if (!account || account.app_metadata.pack873_role!=='volunteer' || account.app_metadata.pack873_must_change_password!==true) return reply({error:'No temporary password pending'},409);
+      if(account.app_metadata.pack873_initial_password_version!=='fixed-dev-20261011')return reply({error:'Existing login uses an earlier temporary password; do not send a different password without resetting it explicitly'},409);
+      await sendTemporaryPassword(email,'Pack873ops#Dev');
       const {error:updateError}=await admin.auth.admin.updateUserById(account.id,{app_metadata:{...account.app_metadata,pack873_temporary_password_sent_at:new Date().toISOString()}});
       return updateError?reply({error:'Unable to record delivery'},500):reply({success:true});
     }
-    const initial=Deno.env.get('PACK873_DEV_INITIAL_PASSWORD') || 'Pack873#ops';
+    const initial='Pack873ops#Dev';
     const results=[];
     for (const v of body.action==='provision_all'?(volunteers||[]):[volunteer!]) {
       const address=v.email.trim().toLowerCase();
       if (byEmail.has(address)) {results.push({email:address,created:false});continue;}
-      const {data,error:createError}=await admin.auth.admin.createUser({email:address,password:initial,email_confirm:true,app_metadata:{pack873_role:'volunteer',pack873_must_change_password:true,pack873_temporary_password_sent_at:v.temporary_password_delivery_assumed?new Date().toISOString():null,pack873_temporary_password_delivery_assumed:!!v.temporary_password_delivery_assumed}});
+      const {data,error:createError}=await admin.auth.admin.createUser({email:address,password:initial,email_confirm:true,app_metadata:{pack873_role:'volunteer',pack873_must_change_password:true,pack873_temporary_password_sent_at:v.temporary_password_delivery_assumed?new Date().toISOString():null,pack873_temporary_password_delivery_assumed:!!v.temporary_password_delivery_assumed,pack873_initial_password_version:'fixed-dev-20261011'}});
       if (createError) {results.push({email:address,created:false,error:'Unable to create account; retry provisioning'});continue;}
       if(data.user) byEmail.set(address,data.user);
+      if(data.user&&!v.temporary_password_delivery_assumed){
+        try{
+          await sendTemporaryPassword(address,initial);
+          const {error:sentError}=await admin.auth.admin.updateUserById(data.user.id,{app_metadata:{...data.user.app_metadata,pack873_temporary_password_sent_at:new Date().toISOString()}});
+          if(sentError)throw new Error('Email accepted, but delivery status could not be recorded');
+        }catch{results.push({email:address,created:true,error:'Login created, but email or delivery tracking failed. Use Send temporary password to retry.'});continue;}
+      }
       results.push({email:address,created:true});
     }
     return reply({success:results.every(r=>!r.error),created:results[0]?.created||false,results});
