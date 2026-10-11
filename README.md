@@ -32,3 +32,10 @@ Supabase documentation: https://supabase.com/docs/reference/javascript/auth-admi
 - Live administrator login-status retrieval succeeds. Gmail secret names are present; no test email was sent during deployment, and inbox delivery remains unverified.
 - The dashboard access deployment uses `file2.ts` for the shared email helper; the Git source uses the equivalent `_shared/temporary-password-email.ts` module.
 - Four existing volunteer login accounts were created after owner confirmation; live status shows temporary password sent (assumed) and change pending. No emails were sent during provisioning. No personal passwords were reset. The real first-login password-change flow remains to be tested by a volunteer.
+
+## Volunteer announcements
+
+Apply migration 006 once to enable announcements. Completed volunteer logins can publish Topic Name, Topic Description and Full Details with no custom text-length limits. The database records the author, posting date and current active assigned roles. The public homepage reads only announcement content, role and date; author IDs and committee contact details remain private. Announcements rotate every 10 seconds with previous/next and pause controls; Read More opens the full text. No edit/delete workflow is included yet.
+
+Run node --test tests/announcements.test.cjs to verify menu gating, rotation and full-details behavior.
+
