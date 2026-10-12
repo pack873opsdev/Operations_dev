@@ -74,3 +74,5 @@
 #committeePanel .cm-admin-role{color:#073764;font-weight:800}#committeePanel #cmIdentityRoles{font-weight:800;color:#073764}
 
 #cmMasterEditForm{margin:18px 0;padding:16px;border:1px solid #dce5ee;border-radius:10px;background:#f4f7fb}.cm-edit-picker{display:flex;border:1px solid #a9baca;border-radius:7px;background:white;overflow:hidden}.cm-edit-picker button{border:0;background:white;color:#12324e;padding:10px;font-size:13px}.cm-edit-picker .cm-selected-name{flex:1;text-align:left;min-width:0;overflow-wrap:anywhere}.cm-edit-picker input{width:100%;border:0!important}.cm-edit-picker:focus-within{outline:2px solid #0761aa}#cmMasterEditForm select{width:100%;margin-top:5px;border:1px solid #a9baca;border-radius:7px}#cmMasterEditForm input{width:100%}
+
+#committeePanel .cm-actions{white-space:nowrap!important;width:1%}#committeePanel .cm-action-group{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}#committeePanel .cm-actions .cm-btn{margin:0;white-space:nowrap;font-size:12px;padding:8px 12px}#cmAnnouncementManagement>#cmAdminAnnouncement{margin:12px 0}
