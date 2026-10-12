@@ -70,3 +70,5 @@
 }
 
 #committeePanel .cm-admin-label{background:transparent;color:#073764;font-weight:800;padding:2px 0;font-size:12px}
+
+#committeePanel .cm-admin-role{color:#073764;font-weight:800}#committeePanel #cmIdentityRoles{font-weight:800;color:#073764}
