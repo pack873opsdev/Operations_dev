@@ -1,13 +1,16 @@
 import {fallbackEventImage,findEventImage,mapsURL,downloadEventCalendar} from './event-media.js';
+import {initializeEventCarousel} from './event-carousel.js';
 export function initializeCalendar(db){
  const $=id=>document.getElementById(id),overlay=$('calendarOverlay');
  let month=new Date();month=new Date(month.getFullYear(),month.getMonth(),1);
  let events=[],canEdit=false,editing=false,eventId=null,selectedDate=null,returnFocus=null;
+ const eventCarousel=initializeEventCarousel($('upcomingEventList'));
+ function updateCredits(){for(const credit of document.querySelectorAll('.event-image-credit')){if(canEdit&&credit.dataset.source){credit.href=credit.dataset.source;credit.removeAttribute('aria-disabled');credit.removeAttribute('tabindex')}else{credit.removeAttribute('href');credit.setAttribute('aria-disabled','true');credit.setAttribute('tabindex','-1')}}}
  const dateKey=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
  const dateLabel=s=>new Date(s+'T12:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
  const timeLabel=t=>new Date('2000-01-01T'+t).toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
  const make=(tag,text,cls)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(cls)el.className=cls;return el};
- async function verifyAdmin(){const {data,error}=await db.auth.getUser();canEdit=!error&&data?.user?.app_metadata?.pack873_role==='admin'&&!data.user.app_metadata.pack873_must_change_password;$('calEdit').hidden=!canEdit;if(!canEdit){editing=false;$('calEventForm').hidden=true}renderMonth()}
+ async function verifyAdmin(){const {data,error}=await db.auth.getUser();canEdit=!error&&data?.user?.app_metadata?.pack873_role==='admin'&&!data.user.app_metadata.pack873_must_change_password;$('calEdit').hidden=!canEdit;if(!canEdit){editing=false;$('calEventForm').hidden=true}updateCredits();renderMonth()}
  async function loadEvents(){
   $('calStatus').textContent='Loading events…';
   const {data,error}=await db.from('calendar_events').select('id,event_name,audience,event_date,place,address,start_time,end_time').order('event_date').order('start_time');
@@ -37,8 +40,9 @@ export function initializeCalendar(db){
    const add=make('button','▦ Add to Calendar','cal-btn');add.type='button';add.addEventListener('click',()=>downloadEventCalendar(event));body.append(make('h3',event.event_name),audience,location,time,add);
    const credit=make('a',undefined,'event-image-credit');credit.hidden=true;credit.target='_blank';credit.rel='noopener noreferrer';body.append(credit);image.addEventListener('error',()=>{image.src=fallbackEventImage(event.event_name);credit.hidden=true},{once:true});
    card.append(imageBox,body);list.append(card);
-   findEventImage(event.event_name).then(found=>{if(!found)return;image.src=found.url;credit.href=found.source;credit.textContent='Photo: '+found.author+' · '+found.license;credit.hidden=false});
+   findEventImage(event.event_name).then(found=>{if(!found)return;image.src=found.url;credit.dataset.source=found.source;credit.textContent='Photo: '+found.author+' · '+found.license;credit.hidden=false;updateCredits()});
   }
+  eventCarousel.refresh();
  }
  async function open(){returnFocus=document.activeElement;overlay.hidden=false;document.body.style.overflow='hidden';$('calClose').focus();await verifyAdmin();await loadEvents()}
  function close(){overlay.hidden=true;$('calEventForm').hidden=true;$('calDateDetails').hidden=true;editing=false;document.body.style.overflow=$('committeeOverlay').hidden?'':'hidden';returnFocus?.focus()}
@@ -49,5 +53,5 @@ export function initializeCalendar(db){
  $('calCancel').addEventListener('click',()=>{$('calEventForm').hidden=true});
  $('calEventForm').addEventListener('submit',async e=>{e.preventDefault();await verifyAdmin();if(!canEdit){$('calFormStatus').textContent='Only administrators can save events.';return}const payload={event_name:$('calEventName').value.trim(),audience:$('calAudience').value,event_date:selectedDate,place:$('calPlace').value.trim(),address:$('calAddress').value.trim(),start_time:$('calStart').value,end_time:$('calEnd').value};if(!payload.event_name||!payload.place||!payload.address){$('calFormStatus').textContent='Enter the event name, place and address.';return}if(payload.end_time<=payload.start_time){$('calFormStatus').textContent='End time must be after start time.';return}const button=$('calSave');button.disabled=true;try{const result=eventId?await db.from('calendar_events').update(payload).eq('id',eventId).select('id').single():await db.from('calendar_events').insert(payload).select('id').single();if(result.error)throw result.error;await loadEvents();$('calEventForm').hidden=true;showDetails(selectedDate);$('calStatus').textContent='Event saved.'}catch(error){$('calFormStatus').textContent='Could not save event: '+error.message}finally{button.disabled=false}});
  document.addEventListener('keydown',e=>{if(overlay.hidden)return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();close()}if(e.key==='Tab'){const focusable=[...overlay.querySelectorAll('button,input,select')].filter(el=>!el.disabled&&!el.closest('[hidden]'));const first=focusable[0],last=focusable.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}},true);
- db.auth.onAuthStateChange(()=>{if(!overlay.hidden)setTimeout(verifyAdmin,0)});window.addEventListener('hashchange',()=>{if(location.hash==='#calendar')open()});loadEvents();if(location.hash==='#calendar')open();
+ db.auth.onAuthStateChange(()=>{setTimeout(verifyAdmin,0)});window.addEventListener('hashchange',()=>{if(location.hash==='#calendar')open()});verifyAdmin();loadEvents();if(location.hash==='#calendar')open();
 }

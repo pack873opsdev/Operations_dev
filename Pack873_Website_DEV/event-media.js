@@ -8,25 +8,26 @@ export function fallbackEventImage(name){
  return 'assets/images/event-pack-campout.jpg';
 }
 export function eventSearchTopic(name){
- if(/pinewood/i.test(name))return 'pinewood derby';
- if(/campout|campfire|camping/i.test(name))return 'campfire camping';
- if(/hike|hiking/i.test(name))return 'hiking trail';
- if(/flag.*retire/i.test(name))return 'flag retirement ceremony';
- return name.replace(/[^\p{L}\p{N}\s-]/gu,' ').trim().slice(0,100);
+ if(/pinewood/i.test(name))return 'cub scout pinewood derby';
+ if(/campout|campfire|camping/i.test(name))return 'scout campfire camping';
+ if(/hike|hiking/i.test(name))return 'scout hiking';
+ if(/flag.*retire/i.test(name))return 'scout flag retirement ceremony';
+ return 'scout '+name.replace(/[^\p{L}\p{N}\s-]/gu,' ').trim().slice(0,100);
 }
 export async function findEventImage(name){
- const topic=eventSearchTopic(name),key='pack873-event-image-v1:'+topic;
+ const topic=eventSearchTopic(name),key='pack873-event-image-v2:'+topic;
  if(imageCache.has(key))return imageCache.get(key);
  const promise=(async()=>{
   try{
    const cached=JSON.parse(localStorage.getItem(key)||'null');if(cached&&Date.now()-cached.savedAt<7*86400000)return cached.image;
   }catch{}
   try{
-   const params=new URLSearchParams({action:'query',format:'json',origin:'*',generator:'search',gsrsearch:topic+' filetype:bitmap',gsrnamespace:'6',gsrlimit:'8',prop:'imageinfo',iiprop:'url|mime|size|extmetadata',iiurlwidth:'640'});
+   const params=new URLSearchParams({action:'query',format:'json',origin:'*',generator:'search',gsrsearch:topic+' filetype:bitmap',gsrnamespace:'6',gsrlimit:'12',prop:'imageinfo',iiprop:'url|mime|size|extmetadata',iiurlwidth:'640'});
    const response=await fetch('https://commons.wikimedia.org/w/api.php?'+params,{signal:AbortSignal.timeout(6000)});if(!response.ok)throw Error('Image search unavailable');const data=await response.json();
    const pages=Object.values(data.query?.pages||{}).sort((a,b)=>(a.index||0)-(b.index||0));
    for(const page of pages){const info=page.imageinfo?.[0],meta=info?.extmetadata||{},license=meta.LicenseShortName?.value||'';
     if(!info||!['image/jpeg','image/png','image/webp'].includes(info.mime)||info.width/info.height<0.9||info.width<400||!(/^(?:CC0|public domain|CC BY(?:-SA)? \d)/i.test(license)))continue;
+    if(!/scout|scouting|pinewood derby/i.test((page.title||'')+' '+(meta.ImageDescription?.value||'')+' '+(meta.Categories?.value||'')))continue;
     if(/pinewood/i.test(topic)&&/axle|weights|wood fill|closeup/i.test(page.title||''))continue;
     const url=info.thumburl||info.url,source=info.descriptionurl;if(!/^https:\/\/(?:upload|thumb)\.wikimedia\.org\//.test(url||'')||!source?.startsWith('https://commons.wikimedia.org/'))continue;
     const author=(meta.Artist?.value||'Wikimedia Commons contributor').replace(/<[^>]*>/g,'').trim().slice(0,160);
