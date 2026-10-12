@@ -1,0 +1,82 @@
+[
+  {
+    "file": "page-background.jpg",
+    "bytes": 63375,
+    "sha256": "9bf3a9c7d04ee889be770270aad23ef0201c442d7d9b332c5f25bd2b296a16fe"
+  },
+  {
+    "file": "pack873-logo.png",
+    "bytes": 1664554,
+    "sha256": "cdfafc027972c9e1b9314305aa77c6ec5823dd881638b59336ce882d27ae7566"
+  },
+  {
+    "file": "hero-adventure-starts-here.png",
+    "bytes": 427722,
+    "sha256": "5515a1e29593fd7107004c0d4b0543d13a86b7eaa26f1ac1f87c13fe33399e10"
+  },
+  {
+    "file": "hero-big-adventures-little-boots.png",
+    "bytes": 418148,
+    "sha256": "bfd8c810393309591716deb912aeca30e1b4e6d3aa89ac8f83d7acfcae88ddd3"
+  },
+  {
+    "file": "hero-friends-today-memories-forever.png",
+    "bytes": 361732,
+    "sha256": "500b0adec7d8adc99f0ccb550f7dc6adc6ac2feba3238fce92846cef7de981dc"
+  },
+  {
+    "file": "hero-learn-by-doing.png",
+    "bytes": 387195,
+    "sha256": "5a22a47be0713be05a726b95bf9b2e84ff547040fa87dc8ad624ce862c98aba2"
+  },
+  {
+    "file": "hero-character-grows-stronger-outdoors.png",
+    "bytes": 391547,
+    "sha256": "3b5d61e987fd5b55365f823ca77a3c6a562183c891bf4aaa6d6b5f61b591e555"
+  },
+  {
+    "file": "hero-discover-new-skills.png",
+    "bytes": 408273,
+    "sha256": "3f9326e2e1d18aa5c9006ffd7d934961fc7ed5ffbb87addfe374481c4fefd64b"
+  },
+  {
+    "file": "event-pack-campout.jpg",
+    "bytes": 10839,
+    "sha256": "c79497f9c1e59a369f2d36d603e6a7b83470f82ec5117c8bab1e6fcb36e0e11b"
+  },
+  {
+    "file": "event-pinewood-derby.jpg",
+    "bytes": 12357,
+    "sha256": "ebfc0f133b3670ad361703bf93b9f004337fd89a64798ff9420ad53b1c999b60"
+  },
+  {
+    "file": "event-den-hike.jpg",
+    "bytes": 15685,
+    "sha256": "964bb03e39bcac3edc9eab6bfd1115810db410560bb6b9c101f14708555aae52"
+  },
+  {
+    "file": "event-flag-retirement.jpg",
+    "bytes": 11922,
+    "sha256": "a757db64972a90506397506c99410426d7a8f9cbfd3c017d508bd0d8ba87b87a"
+  },
+  {
+    "file": "gallery-campfire-fun.jpg",
+    "bytes": 8859,
+    "sha256": "742be89ee7aef15985f49a5f474dfa32763d515518456a2f4ef678c563ed5f29"
+  },
+  {
+    "file": "gallery-hiking-adventures.jpg",
+    "bytes": 13726,
+    "sha256": "36255164213a8436031706703bfe28c67061964aebbca8679df8fd4125e64071"
+  },
+  {
+    "file": "gallery-stem-activities.jpg",
+    "bytes": 10176,
+    "sha256": "84c90853b42d7ee99348f3f9db522ea4f7ad7c6dffe408658c9a8ff790e2a58f"
+  },
+  {
+    "file": "gallery-pinewood-derby.jpg",
+    "bytes": 8674,
+    "sha256": "56858d1d9881b3d5c85acfbaae4f9d4f1811457308f3a0f55bcd2292b2333b56"
+  }
+]
