@@ -3,7 +3,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 const owner = 'pack873ops.dev@gmail.com';
 const cors = {'Access-Control-Allow-Origin':'https://pack873-operations-dev.pages.dev','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const reply=(body:unknown,status=200)=>Response.json(body,{status,headers:cors});
-const links=(file:any)=>({id:file.id,title:file.title,kind:file.kind,created_at:file.created_at,url:`https://docs.google.com/${file.kind==='form'?'forms':file.kind==='sheet'?'spreadsheets':'document'}/d/${file.google_file_id}/edit`});
+const links=(file:any)=>({id:file.id,title:file.title,kind:file.kind,created_at:file.created_at,state:file.state,url:`https://docs.google.com/${file.kind==='form'?'forms':file.kind==='sheet'?'spreadsheets':'document'}/d/${file.google_file_id}/edit`});
 
 async function googleToken(){
  const client_id=Deno.env.get('PACK873_DRIVE_CLIENT_ID'),client_secret=Deno.env.get('PACK873_DRIVE_CLIENT_SECRET'),refresh_token=Deno.env.get('PACK873_DRIVE_REFRESH_TOKEN');
@@ -36,7 +36,7 @@ Deno.serve(async req=>{
   }
   const body=await req.json();
   if(body.action==='list'){
-   const {data,error}=await admin.from('volunteer_files').select('id,title,kind,google_file_id,created_at').eq('user_id',user.id).eq('state','ready').order('created_at',{ascending:false}).limit(100);
+   const {data,error}=await admin.from('volunteer_files').select('id,title,kind,google_file_id,state,created_at').eq('user_id',user.id).in('state',['ready','sharing']).not('google_file_id','is',null).order('created_at',{ascending:false}).limit(100);
    if(error)return reply({error:'The document list is not ready yet. Contact the administrator.'},503);
    return reply({files:(data||[]).map(links)});
   }
@@ -77,7 +77,7 @@ Deno.serve(async req=>{
   }catch(error){
    // If the ID is saved, retry only sharing; never create a replacement file.
    if(reserved.google_file_id)await admin.from('volunteer_files').update({state:'sharing'}).eq('id',reserved.id).eq('google_file_id',reserved.google_file_id);
-   return reply({error:(error as Error).message},502);
+   return reply({error:(error as Error).message,...(reserved.google_file_id?{file:links({...reserved,state:'sharing'})}:{})},502);
   }
  }catch(error){return reply({error:(error as Error).message||'Could not create the file.'},503)}
 });

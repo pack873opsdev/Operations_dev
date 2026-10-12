@@ -7,9 +7,9 @@ export function initializeVolunteerFiles(db, getUser, navigate) {
  async function call(body){
   const {data,error}=await db.functions.invoke('pack873-volunteer-files-dev',{body});
   if(error){
-   let message=data?.error;
-   if(!message&&error.context?.json){try{message=(await error.context.json()).error}catch{}}
-   throw new Error(message||'Google file creation is not connected yet. Contact the administrator.');
+   let payload=data;
+   if(!payload&&error.context?.json){try{payload=await error.context.json()}catch{}}
+   const failure=new Error(payload?.error||'Google file creation is not connected yet. Contact the administrator.');failure.file=payload?.file;throw failure;
   }
   if(data?.error)throw new Error(data.error);return data;
  }
@@ -20,7 +20,10 @@ export function initializeVolunteerFiles(db, getUser, navigate) {
   const title=document.createElement('h4');title.textContent=file.title;
   const link=document.createElement('a');link.className='cm-btn';link.href=file.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Open '+labels[file.kind];
   const type=document.createElement('p');type.className='cm-help';type.textContent=labels[file.kind]+' · Saved in the Pack account';
-  card.append(title,type,link);$('cmFilesList').append(card);
+  const url=document.createElement('a');url.href=file.url;url.target='_blank';url.rel='noopener noreferrer';url.textContent=file.url;url.style='display:block;overflow-wrap:anywhere;font-size:12px;margin-top:10px';
+  card.append(title,type,link,url);
+  if(file.state==='sharing'){const warning=document.createElement('p');warning.className='cm-help';warning.textContent='File created. Google editing access is pending. Ask the administrator to check your Google account email.';card.append(warning)}
+  $('cmFilesList').append(card);
  }
  async function load(){
   if(!authorized())return;const current=++generation,userId=getUser().id;
@@ -49,7 +52,7 @@ export function initializeVolunteerFiles(db, getUser, navigate) {
    if(current!==generation||getUser()?.id!==userId||!authorized())return;
    if(!data.file)throw new Error('The file link was not returned. Contact the administrator.');
    addFile(data.file);pending=null;$('cmFilesForm').hidden=true;$('cmFilesTitle').value='';status('Created. Use the Open link below. Sign in to Google with '+getUser().email+' to edit.');
-  }catch(error){if(current===generation&&getUser()?.id===userId)status(error.message)}finally{busy=false;controls.forEach(control=>control.disabled=false)}
+  }catch(error){if(current===generation&&getUser()?.id===userId){if(error.file){$('cmFilesList').replaceChildren();addFile(error.file)}status(error.file?'File created. Its link is below; Google has not granted editing access yet. You can retry this request without creating another file.':error.message)}}finally{busy=false;controls.forEach(control=>control.disabled=false)}
  });
  return {reset(){generation++;pending=null;$('cmFilesList').replaceChildren();$('cmFilesTitle').value='';$('cmFilesForm').hidden=true;status('')}};
 }
