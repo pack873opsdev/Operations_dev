@@ -72,3 +72,9 @@ Role, volunteer and assignment forms appear above the directory list. Management
 Migration 011 enforces one assignment per role across Active and Inactive records. A volunteer can hold multiple different roles. Administrator-owned assignments cannot be deleted; the browser disables Delete and the database rejects deletion. Existing-role conflicts were checked before applying this migration; no assignments needed removal.
 
 Form and field errors now appear beneath the related controls, including name-edit errors and row actions. Existing-record dropdowns remain visible and volunteer choices include name, email and formatted phone. Name edits retain autosave; the Save button handles contact changes. Verification includes 19 Node tests and the isolated, rolled-back role ownership/admin protection SQL test.
+# Calendar events
+
+The header Calendar link opens a public monthly calendar. Administrators with completed password setup can choose Edit, select a date, and create or update an event. Saved events include the audience, place, address and local start/end time; upcoming events are displayed from the same database records. Events ending today remain upcoming until their end time. Previous sample event cards have been replaced by saved calendar data.
+
+Database migration: `supabase/migrations/202610110013_calendar_events.sql`. Public SELECT and admin-only INSERT/UPDATE are enforced through RLS. Tests: `tests/calendar.test.cjs` and the transaction-only `tests/calendar-permissions-rollback.sql`.
+
