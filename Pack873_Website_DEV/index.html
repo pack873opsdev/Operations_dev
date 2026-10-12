@@ -267,7 +267,7 @@ async function loadMasters(){
  roles=rr.data||[];volunteers=vv.data||[];if(isAdmin)await loadAccessStatuses();
  fillOptions('cmRole',roles,r=>r.role_name,$('cmRole').value);fillOptions('cmName',volunteers,v=>v.volunteer_name,$('cmName').value);
  for(const [id,items,label] of [['cmRoleMasterList',roles,r=>r.role_name],['cmVolunteerMasterList',volunteers,v=>v.volunteer_name+' — '+v.email]]){
-  const el=$(id);el.replaceChildren();for(const item of items){const opt=document.createElement('option');opt.value=String(item.id);opt.textContent=label(item);el.append(opt)}
+  const el=$(id);el.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Select an existing entry';el.append(empty);for(const item of items){const opt=document.createElement('option');opt.value=String(item.id);opt.textContent=label(item);el.append(opt)}
  }
  return true;
 }
