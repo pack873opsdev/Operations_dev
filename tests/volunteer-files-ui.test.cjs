@@ -1,0 +1,16 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+function setup(){
+ const nodes=new Map(),calls=[],views=[];let user={id:'volunteer',email:'volunteer@example.org',app_metadata:{pack873_role:'volunteer'}},fail=false;
+ const element=()=>({hidden:false,disabled:false,textContent:'',value:'',children:[],handlers:{},dataset:{},addEventListener(type,fn){this.handlers[type]=fn},replaceChildren(){this.children=[]},append(...items){this.children.push(...items)},focus(){},querySelectorAll(){return []}});
+ const $=id=>{if(!nodes.has(id))nodes.set(id,element());return nodes.get(id)};const types=['form','document','sheet'].map(kind=>{const b=element();b.dataset.fileKind=kind;return b});$('cmFilesTypes').querySelectorAll=()=>types;
+ const db={functions:{invoke:async(name,{body})=>{
+  calls.push(body);
+  if(fail)return {error:{context:{json:async()=>({error:'Pack account not connected.'})}}};
+  return {data:body.action==='list'?{files:[]}:{file:{kind:body.kind,title:body.title,url:'https://docs.google.com/'+(body.kind==='form'?'forms':body.kind==='sheet'?'spreadsheets':'document')+'/d/file_id/edit'}}};
+ }}};
+ const context={db,getUser:()=>user,navigate:v=>views.push(v),crypto:require('node:crypto').webcrypto,document:{getElementById:$,createElement:element},Error};vm.createContext(context);vm.runInContext(fs.readFileSync('Pack873_Website_DEV/volunteer-files.js','utf8').replace('export function','function')+';api=initializeVolunteerFiles(db,getUser,navigate)',context);
+ return {$,calls,views,types,api:context.api,setUser:u=>user=u,setFail:v=>fail=v,flush:()=>new Promise(r=>setImmediate(r))};
+}
+test('Volunteer opens the menu and creates a Google Sheet with an editable link',async()=>{const s=setup();s.$('cmDocuments').handlers.click();await s.flush();assert.equal(s.views[0],'files');s.types[2].handlers.click();s.$('cmFilesTitle').value='Den budget';await s.$('cmFilesForm').handlers.submit({preventDefault(){}});assert.equal(s.calls[1].kind,'sheet');const card=s.$('cmFilesList').children[0];assert.equal(card.children[2].textContent,'Open Sheet');assert.equal(card.children[2].href,'https://docs.google.com/spreadsheets/d/file_id/edit');assert.match(s.$('cmFilesStatus').textContent,/volunteer@example.org/)});
+test('Failed creation retains request ID for a safe retry and reports error beside form',async()=>{const s=setup();s.types[0].handlers.click();s.$('cmFilesTitle').value='Camp form';s.setFail(true);await s.$('cmFilesForm').handlers.submit({preventDefault(){}});assert.equal(s.$('cmFilesStatus').textContent,'Pack account not connected.');s.setFail(false);await s.$('cmFilesForm').handlers.submit({preventDefault(){}});assert.equal(s.calls[0].request_id,s.calls[1].request_id)});
+test('Sign-out clears file links; pending-password users cannot create files',async()=>{const s=setup();s.types[1].handlers.click();s.$('cmFilesTitle').value='Agenda';await s.$('cmFilesForm').handlers.submit({preventDefault(){}});s.setUser(null);s.api.reset();assert.equal(s.$('cmFilesList').children.length,0);s.setUser({app_metadata:{pack873_role:'volunteer',pack873_must_change_password:true}});s.$('cmDocuments').handlers.click();await s.$('cmFilesForm').handlers.submit({preventDefault(){}});assert.equal(s.calls.length,1)});

@@ -2,6 +2,12 @@
 
 Public DEV site: https://pack873-operations-dev.pages.dev
 
+## Volunteer Google files — October 12, 2026
+
+The Welcome menu includes **Documents/Excel sheets**, with **Create Form**, **Create Document**, and **Create Excel sheet**. Successful creation shows an Open link and keeps it in the volunteer's own file list. Files are owned by `pack873ops.dev@gmail.com` and shared for editing with the signed-in volunteer's email. Sheets support Excel download. Temporary-password users cannot create files; public users cannot see their links.
+
+The file registry migration 014 and **pack873-volunteer-files-dev** function are deployed in Supabase. **Google account authorization remains pending**: only Gmail secret names are currently configured. Creation shows a connection message until the dedicated Drive OAuth secrets are added. [Google connection steps](GOOGLE-FILES-SETUP.md) describe the remaining setup. Google file creation, ownership and real volunteer editing access remain unverified until that connection is completed. Local verification passes 39 tests, including access gates, sharing retries, request reuse and UI link handling.
+
 Cloudflare Pages builds `main` with `exit 0` and publishes `Pack873_Website_DEV`. Supabase source stays outside that public directory. Git pushes update the HTML site; they do **not** deploy Supabase functions or run SQL.
 
 ## Volunteer login rollout

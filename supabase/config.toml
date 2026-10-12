@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.pack873-volunteer-email-dev]
 verify_jwt = true
+
+[functions.pack873-volunteer-files-dev]
+verify_jwt = true
