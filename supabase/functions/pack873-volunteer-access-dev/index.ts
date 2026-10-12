@@ -35,7 +35,7 @@ Deno.serve(async req => {
     const byEmail = new Map(accounts.map(u=>[(u.email||'').toLowerCase(),u]));
     if (body.action === 'statuses') return reply({success:true,statuses:(volunteers||[]).map(v=>{
       const u=byEmail.get(v.email.trim().toLowerCase());
-      return {id:v.id,email:v.email,status:!u?'No login':u.app_metadata.pack873_role!=='volunteer'?'Existing account':u.app_metadata.pack873_must_change_password===true?(u.app_metadata.pack873_temporary_password_sent_at?'Temporary password sent — change pending':'Temporary password ready — not marked sent'):'Personal password set',sent_at:u?.app_metadata.pack873_must_change_password===true?u.app_metadata.pack873_temporary_password_sent_at:null};
+      return {id:v.id,email:v.email,is_admin:u?.app_metadata.pack873_role==='admin',status:!u?'No login':u.app_metadata.pack873_role!=='volunteer'?'Existing account':u.app_metadata.pack873_must_change_password===true?(u.app_metadata.pack873_temporary_password_sent_at?'Temporary password sent — change pending':'Temporary password ready — not marked sent'):'Personal password set',sent_at:u?.app_metadata.pack873_must_change_password===true?u.app_metadata.pack873_temporary_password_sent_at:null};
     })});
     const email = typeof body.email==='string'?body.email.trim().toLowerCase():'';
     const volunteer = (volunteers||[]).find(v=>v.email.trim().toLowerCase()===email);

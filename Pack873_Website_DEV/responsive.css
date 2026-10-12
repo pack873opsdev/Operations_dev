@@ -68,3 +68,5 @@
  header .navlinks>a,header .dropbtn{justify-content:center;width:100%}
  .dropdown{right:auto;left:50%;transform:translateX(-50%)}
 }
+
+#committeePanel .cm-admin-label{background:transparent;color:#073764;font-weight:800;padding:2px 0;font-size:12px}

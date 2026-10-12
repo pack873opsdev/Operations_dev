@@ -242,10 +242,10 @@ async function loadRows(){
    td.style.fontWeight='700';td.style.color=active?'#166534':'#B45309';
   }
   if(isAdmin){const td=document.createElement('td');td.className='cm-actions';const edit=document.createElement('button');edit.className='cm-btn cm-secondary';edit.textContent='Edit';edit.addEventListener('click',()=>showEditor(entry));const del=document.createElement('button');del.className='cm-btn cm-danger';del.textContent='Delete';del.addEventListener('click',()=>removeRole(entry));const reset=document.createElement('button');reset.type='button';reset.className='cm-btn';reset.textContent='Reset password';reset.addEventListener('click',()=>resetVolunteerPassword(entry.email,reset));td.append(edit,del,reset);tr.append(td)}
-  $('cmRows').append(tr);if(isAdmin){const badgeRow=document.createElement('tr');badgeRow.className='cm-login-row';const badgeCell=document.createElement('td');badgeCell.colSpan=6;const badge=document.createElement('span');badge.className='cm-login-badge';badge.dataset.email=normalizeVolunteerEmail(entry.email);badge.textContent='Checking login status…';badgeCell.append(badge);const retry=document.createElement('button');retry.type='button';retry.className='cm-btn cm-secondary';retry.textContent='Send temporary password';retry.addEventListener('click',async()=>{if(!confirm('Email the pending temporary password to '+entry.email+'?'))return;retry.disabled=true;try{await accessAction({action:'send_password',email:entry.email});await loadAccessStatuses()}catch(e){status(e.message)}finally{retry.disabled=false}});retry.dataset.retryEmail=normalizeVolunteerEmail(entry.email);retry.hidden=true;badgeCell.append(retry);badgeRow.append(badgeCell);$('cmRows').append(badgeRow)}
+  $('cmRows').append(tr);if(isAdmin){const badgeRow=document.createElement('tr');badgeRow.className='cm-login-row';const badgeCell=document.createElement('td');badgeCell.colSpan=6;const badge=document.createElement('span');badge.className='cm-login-badge';badge.dataset.email=normalizeVolunteerEmail(entry.email);badge.hidden=true;badgeRow.hidden=true;badgeCell.append(badge);const retry=document.createElement('button');retry.type='button';retry.className='cm-btn cm-secondary';retry.textContent='Send temporary password';retry.addEventListener('click',async()=>{if(!confirm('Email the pending temporary password to '+entry.email+'?'))return;retry.disabled=true;try{await accessAction({action:'send_password',email:entry.email});await loadAccessStatuses()}catch(e){status(e.message)}finally{retry.disabled=false}});retry.dataset.retryEmail=normalizeVolunteerEmail(entry.email);retry.hidden=true;badgeCell.append(retry);badgeRow.append(badgeCell);$('cmRows').append(badgeRow)}
  }
  if(!shown.length){const tr=document.createElement('tr');const td=document.createElement('td');td.colSpan=isAdmin?6:5;td.textContent=filter==='all'?'No committee roles have been added yet.':'No '+filter.toLowerCase()+' committee assignments found.';tr.append(td);$('cmRows').append(tr)}
- if(isAdmin)paintLoginStatuses();paintRetryButtons();status('');
+ if(isAdmin){paintRetryButtons();paintLoginStatuses()}status('');
 }
 $('cmStatusFilter').addEventListener('change',()=>{if(currentUser&&!mustChangePassword)loadRows()});
 function updateWelcome(assignments){
@@ -286,9 +286,17 @@ async function accessAction(body){
  return data;
 }
 let loginStatuses=[];
-function paintLoginStatuses(){for(const badge of document.querySelectorAll('.cm-login-badge')){const entry=loginStatuses.find(v=>normalizeVolunteerEmail(v.email)===badge.dataset.email);badge.textContent=entry?.status==='Temporary password sent — change pending'?'Temporary password sent — awaiting login and password change':entry?.status||'Login status unavailable'}}
+function paintLoginStatuses(){for(const badge of document.querySelectorAll('.cm-login-row .cm-login-badge')){
+ const entry=loginStatuses.find(v=>normalizeVolunteerEmail(v.email)===badge.dataset.email);
+ const admin=entry?.is_admin===true;
+ const pending=entry?.status==='Temporary password sent — change pending';
+ badge.textContent=admin?'Admin':pending?'Temporary password sent — awaiting login and password change':'';
+ badge.className=admin?'cm-login-badge cm-admin-label':'cm-login-badge';badge.hidden=!admin&&!pending;
+ const row=badge.closest('.cm-login-row');const retry=row?.querySelector('[data-retry-email]');
+ if(row)row.hidden=badge.hidden&&(!retry||retry.hidden);
+}}
 function paintRetryButtons(){for(const btn of document.querySelectorAll('[data-retry-email]')){const state=loginStatuses.find(v=>normalizeVolunteerEmail(v.email)===btn.dataset.retryEmail);btn.hidden=state?.status!=='Temporary password ready — not marked sent'}}
-async function loadAccessStatuses(){if(!isAdmin)return;try{const data=await accessAction({action:'statuses'});loginStatuses=data.statuses;paintLoginStatuses()}catch(e){status('Login status unavailable: '+e.message)}}
+async function loadAccessStatuses(){if(!isAdmin)return;try{const data=await accessAction({action:'statuses'});loginStatuses=data.statuses;paintRetryButtons();paintLoginStatuses()}catch(e){status('Login status unavailable: '+e.message)}}
 async function resetVolunteerPassword(email,button){if(!isAdmin||!confirm('Reset '+email+' to the temporary password and email it to them? They must choose a new password at their next login.'))return;button.disabled=true;try{await accessAction({action:'reset_password',email});await loadAccessStatuses();status('Password reset. Temporary password email sent.')}catch(e){status(e.message)}finally{button.disabled=false}}
 $('cmProvisionAll').addEventListener('click',async()=>{
  const btn=$('cmProvisionAll');if(!isAdmin)return;btn.disabled=true;status('Creating missing volunteer logins…');
