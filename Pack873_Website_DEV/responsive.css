@@ -78,3 +78,5 @@
 #committeePanel .cm-actions{white-space:nowrap!important;width:1%}#committeePanel .cm-action-group{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}#committeePanel .cm-actions .cm-btn{margin:0;white-space:nowrap;font-size:12px;padding:8px 12px}#cmAnnouncementManagement>#cmAdminAnnouncement{margin:12px 0}
 
 .cm-inline-status:empty{display:none}.cm-inline-status{font-size:12px;line-height:1.5;margin:10px 0 0;color:#305575}.cm-field-status{color:#9c2333}#committeePanel .cm-btn:disabled{opacity:.45;cursor:not-allowed}#cmMasterEditForm select{padding:9px;background:white;color:#12324e}
+.cm-unassigned-item{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #d8e4ef;font-size:13px;overflow-wrap:anywhere}
+.cm-unassigned-item input{width:auto;flex:none}
