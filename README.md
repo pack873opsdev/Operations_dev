@@ -45,3 +45,6 @@ Migration 006 was applied to the DEV database on October 11, 2026. The SQL rollb
 
 Migration 007 was applied on October 11, 2026. Live rollback tests verified two roles assigned to the same volunteer, chosen-role publishing, original-author/date preservation, owner edits/deletes/restores, blocked cross-author edits/deletes and admin moderation. Existing posts were preserved. Run tests/announcement-management-rollback.sql in the DEV SQL Editor as postgres to repeat the transaction-only test.
 
+
+To assign another committee role, reuse the volunteer's existing record: select them under Manage Roles & Volunteers and click Assign another role, then choose the role and Save. Entering an existing email as a new volunteer also opens this assignment flow. One email keeps one volunteer record and login; multiple committee assignments link to it.
+
