@@ -38,7 +38,8 @@ Deno.serve(async req => {
       if(!volunteer)return reply({error:'Volunteer not found'},404);
       const email=typeof body.email==='string'?body.email.trim().toLowerCase():'';
       const phone=typeof body.phone==='string'?body.phone.trim():'';
-      if(!email || email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length>50)return reply({error:'Enter a valid email and phone number'},400);
+      if(!email || email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return reply({error:'Enter a valid email address'},400);
+      if(phone && !/^[0-9]{10}$/.test(phone))return reply({error:'Phone number must contain 10 digits'},400);
       const previous=volunteer.email.trim().toLowerCase(),account=byEmail.get(previous),conflict=byEmail.get(email);
       if((volunteers||[]).some(v=>v.id!==volunteer.id&&v.email.trim().toLowerCase()===email) || (conflict&&conflict.id!==account?.id))return reply({error:'That email already belongs to another volunteer or login'},409);
       const emailChanged=email!==previous;

@@ -5,7 +5,7 @@ function setup({race=false}={}){
  const existing={id:7,volunteer_name:'Existing Volunteer',email:'volunteer@example.org',phone:'5551234567'};
  const fields={cmVolunteerMasterName:{value:'New entered name'},cmVolunteerMasterEmail:{value:' Volunteer@Example.org '},cmVolunteerMasterPhone:{value:'Different phone'}};
  let submit;const assigned=[],writes=[],messages=[];
- const ctx={isAdmin:true,volunteerMasterEditing:null,volunteers:race?[]:[existing],normalizeVolunteerEmail:email=>(email||'').trim().toLowerCase(),$:id=>id==='cmVolunteerMasterForm'?{addEventListener:(event,fn)=>submit=fn}:fields[id],status:msg=>messages.push(msg),assignAnotherRole:async v=>assigned.push(v),loadMasters:async()=>{ctx.volunteers=[existing]},db:{from:()=>({insert:payload=>{writes.push(payload);return Promise.resolve({error:{code:'23505'}})}})}};
+ const ctx={phoneDigits:v=>(v||'').replace(/[^0-9]/g,''),isAdmin:true,volunteerMasterEditing:null,volunteers:race?[]:[existing],normalizeVolunteerEmail:email=>(email||'').trim().toLowerCase(),$:id=>id==='cmVolunteerMasterForm'?{addEventListener:(event,fn)=>submit=fn}:fields[id],status:msg=>messages.push(msg),assignAnotherRole:async v=>assigned.push(v),loadMasters:async()=>{ctx.volunteers=[existing]},db:{from:()=>({insert:payload=>{writes.push(payload);return Promise.resolve({error:{code:'23505'}})}})}};
  vm.createContext(ctx);vm.runInContext(handler,ctx);return {ctx,assigned,writes,messages,existing,run:()=>submit({preventDefault(){}})};
 }
 test('Existing email reuses volunteer for another assignment without writes or provisioning',async()=>{const s=setup();await s.run();assert.equal(s.writes.length,0);assert.equal(s.assigned[0],s.existing);assert.equal(s.existing.volunteer_name,'Existing Volunteer')});

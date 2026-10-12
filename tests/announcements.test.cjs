@@ -4,7 +4,7 @@ const source=html.slice(html.indexOf('function renderCommitteeView()'),html.inde
 function setup({admin=false,pending=false,items=[]}={}){
  const elements=new Map(),handlers=new Map(),timers=[];
  const $=id=>{if(!elements.has(id))elements.set(id,{hidden:true,textContent:'',value:'',children:[],replaceChildren(){this.children=[]},append(...children){this.children.push(...children)},addEventListener:(event,fn)=>handlers.set(id+':'+event,fn),setAttribute(){},focus(){},reset(){},querySelector(){return {disabled:false}}});return elements.get(id)};
- const ctx={$,currentUser:{id:'member'},isAdmin:admin,mustChangePassword:pending,committeeView:'choices',status(){},document:{hidden:false,activeElement:null,body:{style:{}},addEventListener(){}},console,Date,setInterval:(fn,delay)=>{timers.push({fn,delay});return 1},clearInterval(){},db:{from:()=>({select:()=>({order:()=>({order:async()=>({data:items})}),eq:()=>({single:async()=>({data:{full_details:'Full detail\nNext line'}})})}),insert:async()=>({})})}};
+ const ctx={scrollCommitteeToTop(){},$,currentUser:{id:'member'},isAdmin:admin,mustChangePassword:pending,committeeView:'choices',status(){},document:{hidden:false,activeElement:null,body:{style:{}},addEventListener(){}},console,Date,setInterval:(fn,delay)=>{timers.push({fn,delay});return 1},clearInterval(){},db:{from:()=>({select:()=>({order:()=>({order:async()=>({data:items})}),eq:()=>({single:async()=>({data:{full_details:'Full detail\nNext line'}})})}),insert:async()=>({})})}};
  ctx.document.createElement=()=>({value:'',textContent:'',children:[],append(...children){this.children.push(...children)},addEventListener(){}});
  vm.createContext(ctx);vm.runInContext(source,ctx);return {ctx,$,handlers,timers};
 }

@@ -62,3 +62,7 @@ Deployment on 2026-10-11: migration 008 and the reset handler are deployed. Migr
 Administrators can open **Edit Role or Volunteer creation**, select existing records with the dropdown arrow, and click a selected name to edit it. Names save on blur. Email and phone changes save with the bottom Save button. Existing assignment snapshots update through the deployed master refresh triggers. The access function changes the existing login email in place, preserving its user ID, role, password state and authored announcements; if saving contact details fails, it restores the previous login email. No password reset or email delivery is triggered by contact editing.
 
 Validation includes name autosave, deferred contact save, admin authorization, duplicate login email rejection, unchanged account/password identity, and rollback on contact-save failure. Tests use mocks and do not change real user accounts.
+
+## Management placement and phone display
+
+Role, volunteer and assignment forms appear above the directory list. Management navigation returns the overlay to the top, and the existing-record editor is grouped inside Manage Roles & Volunteers. Phone fields accept ten numeric digits and display XXX-XXX-XXXX. Saved values contain digits only. Migration 010 removes non-digit presentation characters from existing phones without discarding any digits, and adds database digit-only checks. Legacy incomplete numbers remain preserved and must be corrected to ten digits when their contact details are edited.
