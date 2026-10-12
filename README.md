@@ -56,3 +56,9 @@ Migration 008 allows administrators to publish using any role in the role master
 Validation: inline script checks, 12 Node tests, and SQL permission/recovery checks in a rollback transaction. Password resets and emails are mocked in tests; real volunteer passwords are preserved during deployment.
 
 Deployment on 2026-10-11: migration 008 and the reset handler are deployed. Migration 009 remains pending: browser automatic approval review rejected scheduling irreversible data deletion. To enable it manually, open Supabase SQL Editor for Pack873_Operations_DEV, paste `supabase/migrations/202610110009_announcement_cleanup_schedule.sql`, click Run, and confirm the query. Verify `select jobname, schedule, active from cron.job where jobname = 'pack873-expired-announcements';`. Until applied, deleted announcements remain hidden publicly and the recovery interface expires after seven days, but records are not physically purged.
+
+## Edit existing roles and volunteers
+
+Administrators can open **Edit Role or Volunteer creation**, select existing records with the dropdown arrow, and click a selected name to edit it. Names save on blur. Email and phone changes save with the bottom Save button. Existing assignment snapshots update through the deployed master refresh triggers. The access function changes the existing login email in place, preserving its user ID, role, password state and authored announcements; if saving contact details fails, it restores the previous login email. No password reset or email delivery is triggered by contact editing.
+
+Validation includes name autosave, deferred contact save, admin authorization, duplicate login email rejection, unchanged account/password identity, and rollback on contact-save failure. Tests use mocks and do not change real user accounts.

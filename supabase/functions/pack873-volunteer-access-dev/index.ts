@@ -22,7 +22,7 @@ Deno.serve(async req => {
       return reply({success:true});
     }
     if (user.app_metadata.pack873_role !== 'admin' || user.app_metadata.pack873_must_change_password === true) return reply({error:'Admin access required'},403);
-    if (!['provision','provision_all','statuses','send_password','reset_password'].includes(body.action)) return reply({error:'Unknown action'},400);
+    if (!['provision','provision_all','statuses','send_password','reset_password','update_volunteer'].includes(body.action)) return reply({error:'Unknown action'},400);
     const {data:volunteers,error:lookupError} = await admin.from('volunteers').select('id,email,temporary_password_delivery_assumed');
     if (lookupError) return reply({error:'Unable to read volunteers'},500);
     const accounts = [];
@@ -33,6 +33,29 @@ Deno.serve(async req => {
       if (data.users.length < 1000) break;
     }
     const byEmail = new Map(accounts.map(u=>[(u.email||'').toLowerCase(),u]));
+    if(body.action==='update_volunteer') {
+      const volunteer=(volunteers||[]).find(v=>String(v.id)===String(body.volunteer_id));
+      if(!volunteer)return reply({error:'Volunteer not found'},404);
+      const email=typeof body.email==='string'?body.email.trim().toLowerCase():'';
+      const phone=typeof body.phone==='string'?body.phone.trim():'';
+      if(!email || email.length>254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || phone.length>50)return reply({error:'Enter a valid email and phone number'},400);
+      const previous=volunteer.email.trim().toLowerCase(),account=byEmail.get(previous),conflict=byEmail.get(email);
+      if((volunteers||[]).some(v=>v.id!==volunteer.id&&v.email.trim().toLowerCase()===email) || (conflict&&conflict.id!==account?.id))return reply({error:'That email already belongs to another volunteer or login'},409);
+      const emailChanged=email!==previous;
+      if(emailChanged&&account){
+        const {error:emailError}=await admin.auth.admin.updateUserById(account.id,{email,email_confirm:true});
+        if(emailError)return reply({error:'Login email could not be changed; volunteer details were preserved'},400);
+      }
+      const {error:saveError}=await admin.from('volunteers').update({email,phone}).eq('id',volunteer.id);
+      if(saveError){
+        if(emailChanged&&account){
+          const {error:rollbackError}=await admin.auth.admin.updateUserById(account.id,{email:previous,email_confirm:true});
+          if(rollbackError)return reply({error:'Contact save failed and login email could not be restored. Login now uses '+email+'; correct the volunteer email before continuing.'},500);
+        }
+        return reply({error:'Contact details were not saved; existing login email was preserved'},400);
+      }
+      return reply({success:true});
+    }
     if (body.action === 'statuses') return reply({success:true,statuses:(volunteers||[]).map(v=>{
       const u=byEmail.get(v.email.trim().toLowerCase());
       return {id:v.id,email:v.email,is_admin:u?.app_metadata.pack873_role==='admin',status:!u?'No login':u.app_metadata.pack873_role!=='volunteer'?'Existing account':u.app_metadata.pack873_must_change_password===true?(u.app_metadata.pack873_temporary_password_sent_at?'Temporary password sent — change pending':'Temporary password ready — not marked sent'):'Personal password set',sent_at:u?.app_metadata.pack873_must_change_password===true?u.app_metadata.pack873_temporary_password_sent_at:null};
