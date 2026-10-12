@@ -48,3 +48,9 @@ Migration 007 was applied on October 11, 2026. Live rollback tests verified two 
 
 To assign another committee role, reuse the volunteer's existing record: select them under Manage Roles & Volunteers and click Assign another role, then choose the role and Save. Entering an existing email as a new volunteer also opens this assignment flow. One email keeps one volunteer record and login; multiple committee assignments link to it.
 
+
+## Committee layout and announcement recovery
+
+Migration 008 allows administrators to publish using any role in the role master list; volunteers remain limited to their own assigned roles. Deleted announcements can be reinstated for seven days. Migration 009 schedules permanent cleanup every ten minutes after that deadline; apply separately after confirming irreversible cleanup. The access Edge Function supports administrator-triggered resets for volunteer accounts, preserving assignments and requiring a personal password at next login. Directory badges replace the separate status table. Admin accounts use the existing authentication recovery workflow.
+
+Validation: inline script checks, 12 Node tests, and SQL permission/recovery checks in a rollback transaction. Password resets and emails are mocked in tests; real volunteer passwords are preserved during deployment.

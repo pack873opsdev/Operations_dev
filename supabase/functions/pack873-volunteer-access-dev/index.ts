@@ -22,7 +22,7 @@ Deno.serve(async req => {
       return reply({success:true});
     }
     if (user.app_metadata.pack873_role !== 'admin' || user.app_metadata.pack873_must_change_password === true) return reply({error:'Admin access required'},403);
-    if (!['provision','provision_all','statuses','send_password'].includes(body.action)) return reply({error:'Unknown action'},400);
+    if (!['provision','provision_all','statuses','send_password','reset_password'].includes(body.action)) return reply({error:'Unknown action'},400);
     const {data:volunteers,error:lookupError} = await admin.from('volunteers').select('id,email,temporary_password_delivery_assumed');
     if (lookupError) return reply({error:'Unable to read volunteers'},500);
     const accounts = [];
@@ -40,6 +40,16 @@ Deno.serve(async req => {
     const email = typeof body.email==='string'?body.email.trim().toLowerCase():'';
     const volunteer = (volunteers||[]).find(v=>v.email.trim().toLowerCase()===email);
     if (body.action!=='provision_all' && !volunteer) return reply({error:'Volunteer email not found'},404);
+    if (body.action==='reset_password') {
+      const account=byEmail.get(email);
+      if(!account || account.app_metadata.pack873_role!=='volunteer')return reply({error:'Select a volunteer login to reset'},409);
+      const metadata={...account.app_metadata,pack873_must_change_password:true,pack873_temporary_password_sent_at:null,pack873_password_changed_at:null,pack873_initial_password_version:'fixed-dev-20261011'};
+      const {error:resetError}=await admin.auth.admin.updateUserById(account.id,{password:'Pack873ops#Dev',app_metadata:metadata});
+      if(resetError)return reply({error:'Unable to reset password'},400);
+      try{await sendTemporaryPassword(email,'Pack873ops#Dev')}catch{return reply({error:'Password reset, but email delivery failed. Use Send temporary password to retry.'},502)}
+      const {error:sentError}=await admin.auth.admin.updateUserById(account.id,{app_metadata:{...metadata,pack873_temporary_password_sent_at:new Date().toISOString()}});
+      return sentError?reply({error:'Password reset and email accepted, but delivery status could not be recorded'},500):reply({success:true});
+    }
     if (body.action==='send_password') {
       const account=byEmail.get(email);
       if (!account || account.app_metadata.pack873_role!=='volunteer' || account.app_metadata.pack873_must_change_password!==true) return reply({error:'No temporary password pending'},409);

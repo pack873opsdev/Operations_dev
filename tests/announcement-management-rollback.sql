@@ -14,6 +14,11 @@ BEGIN
  VALUES('QA AOL Den Leader','QA Owner','pack873.qa.owner@example.invalid','','Active') RETURNING id INTO role_two;
  INSERT INTO public.committee_roles(role_name,volunteer_name,email,phone,status)
  VALUES('QA Other Role','QA Other','pack873.qa.other@example.invalid','','Active') RETURNING id INTO other_role;
+ INSERT INTO public.volunteer_roles(role_name) VALUES('QA Pinewood Derby Lead'),('QA AOL Den Leader'),('QA Other Role');
+ UPDATE public.committee_roles c SET role_master_id=r.id FROM public.volunteer_roles r WHERE c.role_name=r.role_name AND c.id IN(role_one,role_two,other_role);
+ SELECT role_master_id INTO role_one FROM public.committee_roles WHERE id=role_one;
+ SELECT role_master_id INTO role_two FROM public.committee_roles WHERE id=role_two;
+ SELECT role_master_id INTO other_role FROM public.committee_roles WHERE id=other_role;
  PERFORM set_config('request.jwt.claim.sub',owner_id::text,true);
  IF (SELECT count(*) FROM public.pack873_announcement_roles())<>2 THEN RAISE EXCEPTION 'Multiple assigned roles failed'; END IF;
  post_id=public.pack873_save_announcement(NULL,role_one,'Role test','Brief',repeat('Details. ',200));
@@ -44,5 +49,12 @@ BEGIN
  PERFORM public.pack873_set_announcement_deleted(post_id,true);
  IF NOT EXISTS(SELECT 1 FROM public.announcements WHERE id=post_id AND author_id=owner_id AND role_name='QA Pinewood Derby Lead' AND deleted_at IS NOT NULL) THEN RAISE EXCEPTION 'Admin management failed'; END IF;
  PERFORM public.pack873_set_announcement_deleted(post_id,false);
+ UPDATE public.announcements SET deleted_at=now()-interval '8 days' WHERE id=post_id;
+ BEGIN
+ PERFORM public.pack873_set_announcement_deleted(post_id,false);
+ RAISE EXCEPTION 'QA failed: expired announcement restored';
+ EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE 'Announcement not found%' THEN RAISE; END IF; END;
+ IF EXISTS(SELECT 1 FROM jsonb_array_elements(public.pack873_manage_announcements()) x WHERE x->>'id'=post_id::text) THEN RAISE EXCEPTION 'Expired announcement listed'; END IF;
+ IF NOT EXISTS(SELECT 1 FROM public.pack873_announcement_roles() WHERE assignment_id=other_role) THEN RAISE EXCEPTION 'Admin cannot select all roles'; END IF;
 END $$;
 ROLLBACK;

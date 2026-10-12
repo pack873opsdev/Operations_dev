@@ -18,7 +18,7 @@ test('Multiple roles require an explicit choice; edits use the original author r
  const {ctx,$}=setup({admin:true});const calls=[];
  ctx.db.rpc=async(name,args)=>{calls.push({name,args});return {data:[{assignment_id:1,role_name:'Pinewood Derby Lead',status:'Active'},{assignment_id:2,role_name:'AOL Den Leader',status:'Active'}]}};
  await ctx.openAnnouncementEditor();assert.equal($('cmAnnouncementRole').children.length,3);assert.equal($('cmAnnouncementRole').value,'');
- await ctx.openAnnouncementEditor({id:'post',author_id:'original-author',committee_role_id:2,topic_name:'Existing',full_details:'Long detail'});
+ await ctx.openAnnouncementEditor({id:'post',author_id:'original-author',role_master_id:2,topic_name:'Existing',full_details:'Long detail'});
  assert.equal(calls.at(-1).args.target_author,'original-author');assert.equal($('cmAnnouncementRole').value,'2');assert.equal($('cmTopicName').value,'Existing');assert.equal($('cmAnnouncementSubmit').textContent,'Save changes');
 });
 test('Carousel rotates every ten seconds, wraps manually and pauses for detail view',async()=>{

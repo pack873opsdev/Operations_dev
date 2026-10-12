@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const html=fs.readFileSync('Pack873_Website_DEV/index.html','utf8');
-const handler=html.slice(html.indexOf("$('cmVolunteerMasterForm').addEventListener('submit'"),html.indexOf("$('cmSendTestEmail').addEventListener"));
+const handler=html.slice(html.indexOf("$('cmVolunteerMasterForm').addEventListener('submit'"),html.indexOf("$('cmAdd').addEventListener"));
 function setup({race=false}={}){
  const existing={id:7,volunteer_name:'Existing Volunteer',email:'volunteer@example.org',phone:'5551234567'};
  const fields={cmVolunteerMasterName:{value:'New entered name'},cmVolunteerMasterEmail:{value:' Volunteer@Example.org '},cmVolunteerMasterPhone:{value:'Different phone'}};
