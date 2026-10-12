@@ -27,7 +27,7 @@
  header .nav{padding:8px 12px;gap:4px 12px}
  header a.brand>img{width:60px!important}
  header .join{font-size:12px;padding:12px;border-radius:7px}
- header .navlinks{font-size:12px;gap:2px 12px}
+ header .navlinks{font-size:11px;gap:2px 8px}
  .dropbtn{font-size:inherit}
  .navlinks>a,.dropbtn{min-height:44px;display:flex;align-items:center}
  .dropdown{right:-48px;width:240px;max-width:calc(100vw - 24px)}
@@ -61,4 +61,10 @@
  #committeePanel .cm-welcome-row{gap:10px}
  #committeePanel .cm-scroll{max-width:100%}
  .announcement-detail-panel h2{font-size:21px}
+}
+
+@media(max-width:360px){
+ header .navlinks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 8px}
+ header .navlinks>a,header .dropbtn{justify-content:center;width:100%}
+ .dropdown{right:0}
 }
