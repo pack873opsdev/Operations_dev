@@ -66,3 +66,9 @@ Validation includes name autosave, deferred contact save, admin authorization, d
 ## Management placement and phone display
 
 Role, volunteer and assignment forms appear above the directory list. Management navigation returns the overlay to the top, and the existing-record editor is grouped inside Manage Roles & Volunteers. Phone fields accept ten numeric digits and display XXX-XXX-XXXX. Saved values contain digits only. Migration 010 removes non-digit presentation characters from existing phones without discarding any digits, and adds database digit-only checks. Legacy incomplete numbers remain preserved and must be corrected to ten digits when their contact details are edited.
+
+## Role ownership and local errors
+
+Migration 011 enforces one assignment per role across Active and Inactive records. A volunteer can hold multiple different roles. Administrator-owned assignments cannot be deleted; the browser disables Delete and the database rejects deletion. Existing-role conflicts were checked before applying this migration; no assignments needed removal.
+
+Form and field errors now appear beneath the related controls, including name-edit errors and row actions. Existing-record dropdowns remain visible and volunteer choices include name, email and formatted phone. Name edits retain autosave; the Save button handles contact changes. Verification includes 19 Node tests and the isolated, rolled-back role ownership/admin protection SQL test.
