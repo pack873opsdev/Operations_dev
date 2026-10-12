@@ -22,7 +22,7 @@ The file registry uses RLS: authenticated volunteers can read their own records 
 
 Signed-in Google editor access requires the volunteer's email to be recognized by Google. A non-Gmail email can be used for a Google account. If Google refuses sharing, the file stays owned by the Pack account and retry does not create a new file. Portal logout clears displayed links but does not revoke Google permissions; Google sharing remains until the owner removes it.
 
-Acceptance check after connection: create one Form, Doc and Sheet using an actual volunteer; confirm Pack ownership, volunteer writer access, unpublished Form state, link visibility on returning to the menu, and Excel download from Sheets. A second volunteer must not see those links. No real Google file has been created during mocked tests.
+Acceptance check after connection: create one Form, Doc and Sheet using an actual volunteer; confirm Pack ownership, volunteer writer access, unpublished Form state, link visibility on returning to the menu, and Excel download from Sheets. A second volunteer must not see those links. Mocked tests create no Google files. Live testing on October 12 created three administrator files successfully and one restricted Document for Amit whose editing-access step was refused by Google; a separate volunteer Google account still needs an editing-access check.
 
 ## Official references
 
