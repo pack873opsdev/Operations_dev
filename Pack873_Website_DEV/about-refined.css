@@ -1,8 +1,9 @@
 /* Match the approved About Us reference, including its wider panels and icons. */
 .about-meeting-layout{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:22px;align-items:center}
 .about-leaders-callout{border:0;background:transparent;color:#073764;text-align:center;padding:20px 8px;display:flex;flex-direction:column;align-items:center;gap:12px}
-.about-leaders-doodle{display:grid;place-items:center;width:94px;height:94px;border-radius:50%;background:#fff3c6;border:2px dashed #e8b928;font-size:47px;transform:rotate(-7deg);transition:transform .2s}
-.about-leaders-callout:hover .about-leaders-doodle{transform:rotate(5deg)}
+.about-leaders-doodle{display:grid;place-items:center;width:180px;height:180px;max-width:100%;background:radial-gradient(ellipse at 50% 65%,#fff3c6 0%,#fff3c650 45%,transparent 70%);transition:transform .25s ease;transform-origin:50% 90%}
+.about-leaders-doodle img{display:block;width:100%;height:100%;object-fit:contain}
+.about-leaders-callout:hover .about-leaders-doodle{transform:translateY(-3px) rotate(-2deg)}
 .about-leaders-callout strong{font-size:20px}.about-leaders-callout>span:not(:first-child){font-size:13px;line-height:1.6;color:#53779c}
 .about-leaders-callout b{font-size:13px;color:#0761aa;border-bottom:2px solid #ffd12f;padding-bottom:4px}
 #leadersDialog{width:min(960px,calc(100% - 32px));max-height:85vh;border:1px solid #dce9f5;border-radius:18px;padding:28px;color:#073764;background:#f5faff;box-shadow:0 24px 80px #042b5233}
