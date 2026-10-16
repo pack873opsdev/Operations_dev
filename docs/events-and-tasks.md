@@ -1,0 +1,9 @@
+# Events & Tasks
+
+Open Resources → Committee Member, sign in and choose **Events & Tasks**. Administrators have the same button in their tools. Event plans are private; they do not create public calendar entries.
+
+Any committee member who has completed password setup can create an event plan and becomes its organizer. Organizers and administrators create/edit tasks and select one or more volunteers. An assignee must have a committee assignment. Assignees see only their assigned tasks; organizers and administrators see every task. Updates carry the author's name, date and shared task status. Replies notify the organizer and other assignees. Unread activity appears at the next committee sign-in, stays available under Events & Tasks, and can be marked read. Refresh updates checks for new activity while signed in; no email, SMS or realtime subscription is used.
+
+**Close event & keep final report** requires a final summary and typing `CLOSE AND CLEAN UP`. It atomically retains a concise report and deletes task rows, assignments, update history and notifications. The report includes task owners, final status, due date and last written update/date. Closed events are read-only. The report is available to the organizer, administrators and original participants, including its CSV download. Provider logs/backups follow their own retention, outside this cleanup.
+
+Database: `supabase/migrations/202610160015_event_tasks.sql`. All five tables have RLS and no direct anon/authenticated grants. `pack873_event_tasks` validates authoritative app metadata on every request and exposes only scoped actions. Permission and cleanup regression tests: `tests/event-tasks-permissions-rollback.sql` (all fixtures rolled back). No existing event, calendar, volunteer or announcement data is migrated or deleted.
